@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiamArb Live - ระบบค้นหาและคำนวณ Surebet อัตโนมัติ</title>
+    <meta name="description" content="ระบบค้นหาและคำนวณ Surebet อัตโนมัติสำหรับพรีเมียร์ลีกและลาลีกา">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-500 text-slate-950 font-bold p-2 rounded-lg text-xl tracking-wider">SIAM<span class="text-white">ARB</span></div>
+                <div>
+                    <h1 class="text-lg font-bold text-white">ระบบคำนวณและค้นหา Surebet อัตโนมัติ</h1>
+                    <p class="text-xs text-emerald-400">● เชื่อมโยงราคาเรียลไทม์ | พรีเมียร์ลีก & ลาลีกา</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openDepositModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium text-sm transition shadow-lg shadow-emerald-900/40">
+                    💳 เติมเงิน / สมัครแพ็กเกจ VIP
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left & Center: Match List & Arbitrage Opportunities -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Filters -->
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex gap-2">
+                    <button onclick="filterLeague('all')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-medium transition league-btn active" data-league="all">ทุกลีก</button>
+                    <button onclick="filterLeague('EPL')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm transition league-btn" data-league="EPL">พรีเมียร์ลีก</button>
+                    <button onclick="filterLeague('LaLiga')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm transition league-btn" data-league="LaLiga">ลาลีกา สเปน</button>
+                </div>
+                <div class="text-xs text-slate-400">
+                    อัตรากำไรขั้นต่ำ: <span id="minProfitLabel" class="text-emerald-400 font-bold">1.5%</span>
+                </div>
+            </div>
+
+            <!-- Matches Cards Container -->
+            <div id="matchesContainer" class="space-y-4">
+                <!-- Dynamically injected match cards -->
+            </div>
+        </div>
+
+        <!-- Right Column: Interactive Real-Time Calculator Panel -->
+        <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 h-fit sticky top-24 space-y-5 shadow-xl">
+            <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+                <h2 class="font-bold text-base text-white flex items-center gap-2">
+                    🧮 เครื่องคำนวณ Surebet แบบเรียลไทม์
+                </h2>
+                <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">Live Engine</span>
+            </div>
+
+            <div id="calcNoSelection" class="text-center py-10 text-slate-500 text-sm">
+                กรุณาคลิกเลือก **"คำนวณคู่นี้"** จากรายการแข่งขันด้านซ้าย เพื่อคำนวณสัดส่วนเงินเดิมพัน
+            </div>
+
+            <div id="calcActivePanel" class="space-y-4 hidden">
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80">
+                    <div id="calcMatchTitle" class="text-sm font-bold text-white mb-1">แมนเชสเตอร์ ซิตี้ vs อาร์เซนอล</div>
+                    <div class="text-xs text-slate-400 flex justify-between">
+                        <span>ตลาด: <span id="calcMarket" class="text-emerald-400 font-medium">Over / Under 2.5</span></span>
+                        <span>การันตีผลกำไร: <span id="calcRoiBadge" class="text-emerald-400 font-bold">+2.45%</span></span>
+                    </div>
+                </div>
+
+                <!-- Mode Selector -->
+                <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                    <button onclick="setCalcMode('investment')" id="modeInvBtn" class="py-1.5 text-xs font-medium rounded bg-emerald-600 text-white transition">กำหนดเงินทุนรวม</button>
+                    <button onclick="setCalcMode('profit')" id="modeProfitBtn" class="py-1.5 text-xs font-medium rounded text-slate-400 hover:text-white transition">กำหนดกำไรที่ต้องการ</button>
+                </div>
+
+                <!-- Input Field -->
+                <div class="space-y-1.5">
+                    <label id="inputLabel" class="text-xs font-medium text-slate-300">ระบุเงินเดิมพันรวมทั้งหมด (บาท):</label>
+                    <div class="relative">
+                        <input type="number" id="targetInput" value="4500" min="0" step="1" oninput="calculateStakes()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-bold focus:outline-none focus:border-emerald-500 text-sm">
+                        <span id="inputUnit" class="absolute right-3 top-2 text-xs text-slate-400">THB</span>
+                    </div>
+                </div>
+
+                <!-- Results Breakdown -->
+                <div class="space-y-3 pt-2 border-t border-slate-800">
+                    <div class="text-xs font-bold text-slate-300">สัดส่วนการวางเงินและลิงก์พันธมิตร:</div>
+                    
+                    <!-- Bookmaker 1 (UEA8) -->
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-amber-400">เว็บที่ 1: UEA8 (ค่ายหลัก)</span>
+                            <span id="odds1Display" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 1.95</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">ต้องวางเงินฝั่ง <span id="side1Name" class="text-white font-medium">Over 2.5</span>:</span>
+                            <span id="stake1Display" class="font-bold text-emerald-400">฿2,307.69</span>
+                        </div>
+                        <a id="linkUea8" href="https://www.uea8chokdee.com/en-th/register?refid=okgvitjq" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-1.5 rounded text-xs transition">
+                            👉 ไปวางเดิมพันที่ UEA8
+                        </a>
+                    </div>
+
+                    <!-- Bookmaker 2 (Roobet) -->
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-cyan-400">เว็บที่ 2: Roobet (เว็บพันธมิตร)</span>
+                            <span id="odds2Display" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 2.08</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-400">ต้องวางเงินฝั่ง <span id="side2Name" class="text-white font-medium">Under 2.5</span>:</span>
+                            <span id="stake2Display" class="font-bold text-emerald-400">฿2,192.31</span>
+                        </div>
+                        <a id="linkRoobet" href="https://roobet.com/?ref=beluga1999" target="_blank" rel="noopener noreferrer" class="block w-full text-center bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-1.5 rounded text-xs transition">
+                            👉 ไปวางเดิมพันที่ Roobet
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Financial Summary Box -->
+                <div class="bg-emerald-950/30 border border-emerald-500/30 p-3 rounded-lg space-y-1 text-xs">
+                    <div class="flex justify-between text-slate-300">
+                        <span>เงินลงทุนรวมทั้งหมด:</span>
+                        <span id="sumTotalInv" class="font-bold text-white">฿4,500.00</span>
+                    </div>
+                    <div class="flex justify-between text-slate-300">
+                        <span>ผลตอบแทนที่การันตีได้รับ:</span>
+                        <span id="sumReturn" class="font-bold text-emerald-400">฿4,610.25</span>
+                    </div>
+                    <div class="flex justify-between text-emerald-300 pt-1 border-t border-emerald-500/20 font-bold">
+                        <span>กำไรสุทธิ (ไม่ว่าผลออกฝั่งไหน):</span>
+                        <span id="sumNetProfit" class="text-emerald-400 text-sm">+฿110.25 (+2.45%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Deposit & Payment Gateway Modal -->
+    <div id="depositModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative">
+            <button onclick="closeDepositModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
+            
+            <div class="border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-lg text-white">💳 ช่องทางชำระเงินและเติมเงินอัตโนมัติ</h3>
+                <p class="text-xs text-slate-400">รองรับธนาคารไทย, พร้อมเพย์, บัตรเดบิต/เครดิต และคริปโตเคอร์เรนซี</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="grid grid-cols-3 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                <button onclick="switchTab('qr')" id="tabQr" class="py-2 text-xs font-medium rounded bg-emerald-600 text-white transition">พร้อมเพย์ / สแกนจ่าย</button>
+                <button onclick="switchTab('card')" id="tabCard" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">บัตรเครดิต/เดบิต</button>
+                <button onclick="switchTab('crypto')" id="tabCrypto" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">คริปโตเคอร์เรนซี</button>
+            </div>
+
+            <!-- Tab Content: PromptPay QR with Auto-Check Simulation -->
+            <div id="contentQr" class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-xs text-slate-300">ระบุจำนวนเงินที่ต้องการเติม (THB):</label>
+                    <input type="number" id="qrAmountInput" value="1000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-bold text-sm">
+                </div>
+                <div class="flex flex-col items-center justify-center p-4 bg-white rounded-xl space-y-3">
+                    <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
+                        <!-- Simulated QR Code visual -->
+                        <svg class="w-36 h-36 mx-auto text-slate-900" viewBox="0 0 24 24" fill="currentColor"><path d="M2 2h8v8H2V2m2 2v4h4V4H4m8-2h8v8h-8V2m2 2v4h4V4h-4M2 12h8v8H2v-8m2 2v4h4v-4H4m10 2h2v2h-2v-2m4 0h2v2h-2v-2m-4 4h2v2h-2v-2m4 0h2v2h-2v-2m2-6h2v2h-2v-2m0 4h2v2h-2v-2z"/></svg>
+                    </div>
+                    <div class="text-center text-slate-900 text-xs font-bold">สแกนด้วยแอปธนาคารไทยทุกสี (PromptPay QR)</div>
+                    <div class="text-emerald-600 text-xs font-semibold animate-pulse" id="paymentStatusText">⏳ กำลังรอสแกนชำระเงินอัตโนมัติ...</div>
+                </div>
+                <button onclick="simulateAutoPaymentSuccess()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition">
+                    🧪 จำลองว่าโอนเงินสำเร็จแล้ว (ทดสอบระบบ Auto-Check)
+                </button>
+            </div>
+
+            <!-- Tab Content: Credit Card -->
+            <div id="contentCard" class="space-y-4 hidden">
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-300">หมายเลขหน้าบัตร</label>
+                        <input type="text" placeholder="4111 2222 3333 4444" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-sm">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-xs text-slate-300">วันหมดอายุ (MM/YY)</label>
+                            <input type="text" placeholder="12/28" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-sm">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-300">CVV</label>
+                            <input type="password" placeholder="123" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-sm">
+                        </div>
+                    </div>
+                </div>
+                <button onclick="alert('จำลองการตัดบัตรสำเร็จ!')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition">
+                    ชำระเงินผ่านบัตรเดบิต/เครดิต
+                </button>
+            </div>
+
+            <!-- Tab Content: Crypto -->
+            <div id="contentCrypto" class="space-y-4 hidden">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+                    <div class="text-xs font-bold text-amber-400">เครือข่ายที่รองรับ: USDT (TRC-20 / BEP-20) หรือ BTC</div>
+                    <div class="text-xs text-slate-400">Wallet Address สำหรับโอนเงิน:</div>
+                    <div class="bg-slate-900 p-2 rounded text-emerald-400 font-mono text-xs break-all border border-slate-800">
+                        TWvd7K9sZq8xR4pL2vNmKj8Yw1qX3z9Q1a
+                    </div>
+                    <div class="text-xs text-slate-500">ระบบจะตรวจสอบบล็อกเชนอัตโนมัติภายใน 1-3 นาทีหลังโอน</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Mock Matches Data (Premier League & La Liga) referencing UEA8 & Roobet
+        const matchesData = [
+            {
+                id: 1,
+                league: 'EPL',
+                teams: 'แมนเชสเตอร์ ซิตี้ vs อาร์เซนอล',
+                time: 'คืนนี้ 22:30 น.',
+                market: 'Over / Under 2.5',
+                side1: 'Over 2.5',
+                side2: 'Under 2.5',
+                odds1: 1.95,
+                odds2: 2.08,
+                roi: 2.45,
+                book1: 'UEA8',
+                book2: 'Roobet',
+                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
+                link2: 'https://roobet.com/?ref=beluga1999'
+            },
+            {
+                id: 2,
+                league: 'LaLiga',
+                teams: 'เรอัล มาดริด vs บาร์เซโลนา',
+                time: 'พรุ่งนี้ 02:00 น.',
+                market: 'Asian Handicap (-0.5)',
+                side1: 'เรอัล มาดริด -0.5',
+                side2: 'บาร์เซโลนา +0.5',
+                odds1: 2.02,
+                odds2: 2.01,
+                roi: 1.85,
+                book1: 'UEA8',
+                book2: 'Roobet',
+                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
+                link2: 'https://roobet.com/?ref=beluga1999'
+            },
+            {
+                id: 3,
+                league: 'EPL',
+                teams: 'ลิเวอร์พูล vs เชลซี',
+                time: 'เสาร์นี้ 19:30 น.',
+                market: 'Over / Under 3.0',
+                side1: 'Over 3.0',
+                side2: 'Under 3.0',
+                odds1: 1.98,
+                odds2: 2.05,
+                roi: 2.10,
+                book1: 'UEA8',
+                book2: 'Roobet',
+                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
+                link2: 'https://roobet.com/?ref=beluga1999'
+            }
+        ];
+
+        let currentSelectedMatch = null;
+        let calcMode = 'investment';
+
+        function formatTHB(value) {
+            if (isNaN(value)) return '฿0.00';
+            return new Intl.NumberFormat('th-TH', {
+                style: 'currency',
+                currency: 'THB',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        function renderMatches(filter = 'all') {
+            const container = document.getElementById('matchesContainer');
+            container.innerHTML = '';
+
+            const filtered = filter === 'all' ? matchesData : matchesData.filter(m => m.league === filter);
+
+            filtered.forEach(m => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-4 rounded-xl transition space-y-3 shadow-lg";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-medium">${m.league === 'EPL' ? 'พรีเมียร์ลีก' : 'ลาลีกา สเปน'}</span>
+                            <h3 class="font-bold text-base text-white mt-1">${m.teams}</h3>
+                            <span class="text-xs text-slate-400">${m.time} | ตลาด: ${m.market}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs text-slate-400">กำไรชัวร์ (ROI)</div>
+                            <div class="text-lg font-extrabold text-emerald-400">+${m.roi}%</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
+                        <div>
+                            <div class="text-slate-400">ฝั่งที่ 1 (${m.book1}):</div>
+                            <div class="font-bold text-white">${m.side1}</div>
+                            <div class="text-amber-400 font-mono mt-0.5">Odds: ${m.odds1}</div>
+                        </div>
+                        <div>
+                            <div class="text-slate-400">ฝั่งที่ 2 (${m.book2}):</div>
+                            <div class="font-bold text-white">${m.side2}</div>
+                            <div class="text-cyan-400 font-mono mt-0.5">Odds: ${m.odds2}</div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-1">
+                        <div class="flex gap-2">
+                            <a href="${m.link1}" target="_blank" rel="noopener noreferrer" class="text-xs bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-slate-950 border border-amber-600/30 px-3 py-1.5 rounded transition font-medium">แทง UEA8</a>
+                            <a href="${m.link2}" target="_blank" rel="noopener noreferrer" class="text-xs bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-slate-950 border border-cyan-600/30 px-3 py-1.5 rounded transition font-medium">แทง Roobet</a>
+                        </div>
+                        <button onclick="selectMatch(${m.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-xs font-bold transition shadow-md" aria-label="คำนวณคู่นี้ ${m.teams}">
+                            🧮 คำนวณคู่นี้
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterLeague(league) {
+            document.querySelectorAll('.league-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-300');
+                if (btn.dataset.league === league) {
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                    btn.classList.remove('bg-slate-800', 'text-slate-300');
+                }
+            });
+            renderMatches(league);
+        }
+
+        function selectMatch(id) {
+            currentSelectedMatch = matchesData.find(m => m.id === id);
+            document.getElementById('calcNoSelection').classList.add('hidden');
+            document.getElementById('calcActivePanel').classList.remove('hidden');
+
+            document.getElementById('calcMatchTitle').innerText = currentSelectedMatch.teams;
+            document.getElementById('calcMarket').innerText = currentSelectedMatch.market;
+            document.getElementById('calcRoiBadge').innerText = `+${currentSelectedMatch.roi}%`;
+
+            document.getElementById('side1Name').innerText = currentSelectedMatch.side1;
+            document.getElementById('side2Name').innerText = currentSelectedMatch.side2;
+            document.getElementById('odds1Display').innerText = `Odds: ${currentSelectedMatch.odds1}`;
+            document.getElementById('odds2Display').innerText = `Odds: ${currentSelectedMatch.odds2}`;
+
+            const linkU = document.getElementById('linkUea8');
+            const linkR = document.getElementById('linkRoobet');
+            linkU.href = currentSelectedMatch.link1;
+            linkR.href = currentSelectedMatch.link2;
+            linkU.setAttribute('rel', 'noopener noreferrer');
+            linkR.setAttribute('rel', 'noopener noreferrer');
+
+            const targetInput = document.getElementById('targetInput');
+            if (calcMode === 'investment' && (!targetInput.value || parseFloat(targetInput.value) <= 0)) {
+                targetInput.value = '4500';
+            }
+            if (calcMode === 'profit' && (!targetInput.value || parseFloat(targetInput.value) <= 0)) {
+                targetInput.value = '150';
+            }
+
+            calculateStakes();
+        }
+
+        function setCalcMode(mode) {
+            calcMode = mode;
+            const invBtn = document.getElementById('modeInvBtn');
+            const profitBtn = document.getElementById('modeProfitBtn');
+            const inputLabel = document.getElementById('inputLabel');
+            const inputUnit = document.getElementById('inputUnit');
+            const targetInput = document.getElementById('targetInput');
+
+            if (mode === 'investment') {
+                invBtn.className = "py-1.5 text-xs font-medium rounded bg-emerald-600 text-white transition";
+                profitBtn.className = "py-1.5 text-xs font-medium rounded text-slate-400 hover:text-white transition";
+                inputLabel.innerText = "ระบุเงินเดิมพันรวมทั้งหมด (บาท):";
+                inputUnit.innerText = "THB";
+                if (!targetInput.value || parseFloat(targetInput.value) <= 0) targetInput.value = "4500";
+            } else {
+                profitBtn.className = "py-1.5 text-xs font-medium rounded bg-emerald-600 text-white transition";
+                invBtn.className = "py-1.5 text-xs font-medium rounded text-slate-400 hover:text-white transition";
+                inputLabel.innerText = "ระบุผลกำไรสุทธิที่ต้องการ (บาท):";
+                inputUnit.innerText = "THB";
+                if (!targetInput.value || parseFloat(targetInput.value) <= 0) targetInput.value = "150";
+            }
+            calculateStakes();
+        }
+
+        function calculateStakes() {
+            if (!currentSelectedMatch) return;
+            const val = parseFloat(document.getElementById('targetInput').value) || 0;
+            const o1 = parseFloat(currentSelectedMatch.odds1);
+            const o2 = parseFloat(currentSelectedMatch.odds2);
+
+            const stake1El = document.getElementById('stake1Display');
+            const stake2El = document.getElementById('stake2Display');
+            const sumTotalInvEl = document.getElementById('sumTotalInv');
+            const sumReturnEl = document.getElementById('sumReturn');
+            const sumNetProfitEl = document.getElementById('sumNetProfit');
+            const calcRoiBadge = document.getElementById('calcRoiBadge');
+
+            const inv1 = 1 / o1;
+            const inv2 = 1 / o2;
+            const sumInv = inv1 + inv2;
+
+            if (!isFinite(sumInv) || sumInv >= 1) {
+                stake1El.innerText = '—';
+                stake2El.innerText = '—';
+                sumTotalInvEl.innerText = '—';
+                sumReturnEl.innerText = '—';
+                sumNetProfitEl.innerText = 'ไม่พบโอกาส Surebet';
+                calcRoiBadge.innerText = '—';
+
+                let warn = document.getElementById('arbWarning');
+                if (!warn) {
+                    warn = document.createElement('div');
+                    warn.id = 'arbWarning';
+                    warn.className = 'text-sm text-amber-400 font-medium';
+                    const panel = document.getElementById('calcActivePanel');
+                    panel.insertBefore(warn, panel.children[1]);
+                }
+                warn.innerText = '⚠️ ไม่มีโอกาส Surebet ในออดส์ปัจจุบัน (sumInv >= 1) — โปรดเลือกคู่ที่มีออดส์ที่แตกต่างกันมากขึ้น';
+                return;
+            }
+
+            const warn = document.getElementById('arbWarning');
+            if (warn) warn.remove();
+
+            let totalInv = 0;
+            let stake1 = 0;
+            let stake2 = 0;
+            let netProfit = 0;
+            let returnAmt = 0;
+
+            if (calcMode === 'investment') {
+                totalInv = Math.max(0, val);
+                stake1 = totalInv * (inv1 / sumInv);
+                stake2 = totalInv * (inv2 / sumInv);
+                const ret1 = stake1 * o1;
+                const ret2 = stake2 * o2;
+                returnAmt = Math.min(ret1, ret2);
+                netProfit = returnAmt - totalInv;
+            } else {
+                netProfit = Math.max(0, val);
+                const denom = (1 / sumInv) - 1;
+                if (denom <= 0) {
+                    sumTotalInvEl.innerText = '—';
+                    sumReturnEl.innerText = '—';
+                    sumNetProfitEl.innerText = 'ไม่สามารถคำนวณ';
+                    return;
+                }
+                totalInv = netProfit / denom;
+                stake1 = totalInv * (inv1 / sumInv);
+                stake2 = totalInv * (inv2 / sumInv);
+                returnAmt = totalInv + netProfit;
+            }
+
+            const roiPercent = totalInv > 0 ? (netProfit / totalInv) * 100 : 0;
+
+            stake1El.innerText = formatTHB(stake1);
+            stake2El.innerText = formatTHB(stake2);
+            sumTotalInvEl.innerText = formatTHB(totalInv);
+            sumReturnEl.innerText = formatTHB(returnAmt);
+            sumNetProfitEl.innerText = `${netProfit >= 0 ? '+' : '-'}${formatTHB(Math.abs(netProfit))} (${roiPercent.toFixed(2)}%)`;
+            calcRoiBadge.innerText = `${roiPercent >= 0 ? '+' : '-'}${roiPercent.toFixed(2)}%`;
+        }
+
+        function openDepositModal() {
+            document.getElementById('depositModal').classList.remove('hidden');
+        }
+        function closeDepositModal() {
+            document.getElementById('depositModal').classList.add('hidden');
+        }
+
+        function switchTab(tab) {
+            document.getElementById('contentQr').classList.add('hidden');
+            document.getElementById('contentCard').classList.add('hidden');
+            document.getElementById('contentCrypto').classList.add('hidden');
+
+            document.getElementById('tabQr').className = "py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition";
+            document.getElementById('tabCard').className = "py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition";
+            document.getElementById('tabCrypto').className = "py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition";
+
+            if (tab === 'qr') {
+                document.getElementById('contentQr').classList.remove('hidden');
+                document.getElementById('tabQr').className = "py-2 text-xs font-medium rounded bg-emerald-600 text-white transition";
+            } else if (tab === 'card') {
+                document.getElementById('contentCard').classList.remove('hidden');
+                document.getElementById('tabCard').className = "py-2 text-xs font-medium rounded bg-emerald-600 text-white transition";
+            } else if (tab === 'crypto') {
+                document.getElementById('contentCrypto').classList.remove('hidden');
+                document.getElementById('tabCrypto').className = "py-2 text-xs font-medium rounded bg-emerald-600 text-white transition";
+            }
+        }
+
+        function simulateAutoPaymentSuccess() {
+            const statusEl = document.getElementById('paymentStatusText');
+            statusEl.innerText = "⏳ ระบบกำลังตรวจสอบสลิปอัตโนมัติกับธนาคาร...";
+            statusEl.className = "text-amber-500 text-xs font-semibold animate-bounce";
+
+            setTimeout(() => {
+                statusEl.innerText = "✅ ยืนยันการชำระเงินสำเร็จ! ยอดเงินเข้าบัญชีของคุณเรียบร้อยแล้ว";
+                statusEl.className = "text-emerald-500 text-xs font-bold";
+                setTimeout(() => {
+                    closeDepositModal();
+                    alert("เติมเงินสำเร็จ! ยอดเงินพร้อมใช้งานในระบบแล้ว");
+                }, 1500);
+            }, 2000);
+        }
+
+        renderMatches('all');
+    </script>
+</body>
+</html>
