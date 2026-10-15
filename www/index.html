@@ -1,488 +1,353 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SiamArb Live - ระบบค้นหาและคำนวณ Surebet อัตโนมัติ</title>
-    <meta name="description" content="ระบบค้นหาและคำนวณ Surebet อัตโนมัติสำหรับพรีเมียร์ลีกและลาลีกา">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Prompt', sans-serif; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SiamArb Live</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Prompt', sans-serif; }
+    .panel { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(148, 163, 184, 0.18); }
+    .live-pill { display:inline-flex; align-items:center; gap:8px; }
+    .live-dot { width:8px; height:8px; background:#22c55e; border-radius:999px; box-shadow:0 0 12px rgba(34,197,94,0.9); animation:pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.55; transform:scale(1.2); } }
+    .premium-input { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(148, 163, 184, 0.18); }
+    .premium-input:focus { outline:none; border-color: rgba(16,185,129,0.9); box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
-
-    <!-- Header -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-emerald-500 text-slate-950 font-bold p-2 rounded-lg text-xl tracking-wider">SIAM<span class="text-white">ARB</span></div>
-                <div>
-                    <h1 class="text-lg font-bold text-white">ระบบคำนวณและค้นหา Surebet อัตโนมัติ</h1>
-                    <p class="text-xs text-emerald-400">● เชื่อมโยงราคาเรียลไทม์ | พรีเมียร์ลีก & ลาลีกา</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="openDepositModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium text-sm transition shadow-lg shadow-emerald-900/40">
-                    💳 เติมเงิน / สมัครแพ็กเกจ VIP (499 THB)
-                </button>
-            </div>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <header class="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-40 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-3">
+      <div class="flex items-center gap-3">
+        <div class="bg-emerald-500 text-slate-950 font-bold px-3 py-2 rounded-lg text-lg tracking-wide">SIAM<span class="text-white">ARB</span></div>
+        <div>
+          <h1 class="text-lg font-bold">SiamArb Live</h1>
+          <div class="flex items-center gap-2 text-xs text-emerald-400">
+            <span class="live-pill"><span class="live-dot"></span> Live feed</span>
+            <span id="lastUpdatedText">Waiting for data...</span>
+          </div>
         </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Left & Center: Match List & Arbitrage Opportunities -->
-        <div class="lg:col-span-2 space-y-6">
-            
-            <!-- Filters -->
-            <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 flex flex-wrap gap-4 items-center justify-between">
-                <div class="flex gap-2">
-                    <button onclick="filterLeague('all')" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-medium transition league-btn active" data-league="all">ทุกลีก</button>
-                    <button onclick="filterLeague('EPL')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm transition league-btn" data-league="EPL">พรีเมียร์ลีก</button>
-                    <button onclick="filterLeague('LaLiga')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm transition league-btn" data-league="LaLiga">ลาลีกา สเปน</button>
-                </div>
-                <div class="text-xs text-slate-400">
-                    อัตรากำไรขั้นต่ำ: <span id="minProfitLabel" class="text-emerald-400 font-bold">1.5%</span>
-                </div>
-            </div>
-
-            <!-- Matches Cards Container -->
-            <div id="matchesContainer" class="space-y-4">
-                <!-- Dynamically injected match cards -->
-            </div>
-        </div>
-
-        <!-- Right Column: Interactive Real-Time Calculator Panel -->
-        <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 h-fit sticky top-24 space-y-5 shadow-xl">
-            <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
-                <h2 class="font-bold text-base text-white flex items-center gap-2">
-                    🧮 เครื่องคำนวณ Surebet แบบเรียลไทม์
-                </h2>
-                <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">Live Engine</span>
-            </div>
-
-            <div id="calcNoSelection" class="text-center py-10 text-slate-500 text-sm">
-                กรุณาคลิกเลือก **"คำนวณคู่นี้"** จากรายการแข่งขันด้านซ้าย เพื่อคำนวณสัดส่วนเงินเดิมพัน
-            </div>
-
-            <div id="calcActivePanel" class="space-y-4 hidden">
-                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80">
-                    <div id="calcMatchTitle" class="text-sm font-bold text-white mb-1">แมนเชสเตอร์ ซิตี้ vs อาร์เซนอล</div>
-                    <div class="text-xs text-slate-400 flex justify-between">
-                        <span>ตลาด: <span id="calcMarket" class="text-emerald-400 font-medium">Over / Under 2.5</span></span>
-                        <span>การันตีผลกำไร: <span id="calcRoiBadge" class="text-emerald-400 font-bold">+2.45%</span></span>
-                    </div>
-                </div>
-
-                <!-- Mode Selector -->
-                <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
-                    <button onclick="setCalcMode('investment')" id="modeInvBtn" class="py-1.5 text-xs font-medium rounded bg-emerald-600 text-white transition">กำหนดเงินทุนรวม</button>
-                    <button onclick="setCalcMode('profit')" id="modeProfitBtn" class="py-1.5 text-xs font-medium rounded text-slate-400 hover:text-white transition">กำหนดกำไรที่ต้องการ</button>
-                </div>
-
-                <!-- Auto / Manual toggle -->
-                <div class="flex items-center gap-3 text-xs">
-                    <label class="flex items-center gap-2"><input type="radio" name="calcModeAutoManual" id="autoCalc" checked onchange="setCalcManual(false)"> อัตโนมัติ</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="calcModeAutoManual" id="manualCalc" onchange="setCalcManual(true)"> กำหนดเอง (ใส่จำนวนที่ต้องการวางในแต่ละเว็บ)</label>
-                </div>
-
-                <!-- Input Field (Auto mode uses this; Manual mode uses stake inputs below) -->
-                <div id="autoInputBlock" class="space-y-1.5">
-                    <label id="inputLabel" class="text-xs font-medium text-slate-300">ระบุเงินเดิมพันรวมทั้งหมด (บาท):</label>
-                    <div class="relative">
-                        <input type="number" id="targetInput" value="4500" min="0" step="1" oninput="calculateStakes()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-bold focus:outline-none focus:border-emerald-500 text-sm">
-                        <span id="inputUnit" class="absolute right-3 top-2 text-xs text-slate-400">THB</span>
-                    </div>
-                </div>
-
-                <!-- Manual stake inputs (per site/team) -->
-                <div id="manualInputBlock" class="space-y-3 hidden">
-                    <div class="text-xs font-bold text-slate-300">กำหนดสัดส่วนการวางเงินแยกตามเว็บ:</div>
-                    <div class="grid grid-cols-1 gap-3">
-                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-amber-400">เว็บที่ 1: <span id="manualBook1">UEA8</span></span>
-                                <span id="manualOdds1" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 1.95</span>
-                            </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">วางบนทีม:</label>
-                                <input type="text" id="manualSide1Name" value="Over 2.5" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full">
-                            </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">จำนวนเงิน (฿):</label>
-                                <input type="number" min="0" step="0.01" id="manualStake1" value="2307.69" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStakes()">
-                            </div>
-                            <div class="mt-3">
-                                <button onclick="placeBetExternal(1)" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพันที่ UEA8</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-cyan-400">เว็บที่ 2: <span id="manualBook2">Roobet</span></span>
-                                <span id="manualOdds2" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 2.08</span>
-                            </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">วางบนทีม:</label>
-                                <input type="text" id="manualSide2Name" value="Under 2.5" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full">
-                            </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">จำนวนเงิน (฿):</label>
-                                <input type="number" min="0" step="0.01" id="manualStake2" value="2192.31" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStakes()">
-                            </div>
-                            <div class="mt-3">
-                                <button onclick="placeBetExternal(2)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพันที่ Roobet</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Results Breakdown -->
-                <div class="space-y-3 pt-2 border-t border-slate-800">
-                    <div class="text-xs font-bold text-slate-300">สรุปการวางเงินและผลลัพธ์ที่คาดการณ์ได้:</div>
-
-                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-2 text-xs">
-                        <div class="flex justify-between text-slate-400">
-                            <span>เงินลงทุนรวมทั้งหมด:</span>
-                            <span id="sumTotalInv" class="font-bold text-white">฿4,500.00</span>
-                        </div>
-                        <div class="flex justify-between text-slate-400">
-                            <span>เมื่อผลออก ฝั่งเว็บที่ 1 ชนะ จะได้รับ:</span>
-                            <span id="returnIf1" class="font-bold text-emerald-400">฿4,610.25</span>
-                        </div>
-                        <div class="flex justify-between text-slate-400">
-                            <span>เมื่อผลออก ฝั่งเว็บที่ 2 ชนะ จะได้รับ:</span>
-                            <span id="returnIf2" class="font-bold text-emerald-400">฿4,610.25</span>
-                        </div>
-                        <div class="pt-1 border-t border-emerald-500/20 text-xs font-bold text-emerald-300">
-                            <div class="flex justify-between">
-                                <span>กำไร / ขาดทุน หากฝั่งเว็บที่ 1 ชนะ:</span>
-                                <span id="profitIf1" class="text-emerald-400">+฿110.25</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span>กำไร / ขาดทุน หากฝั่งเว็บที่ 2 ชนะ:</span>
-                                <span id="profitIf2" class="text-emerald-400">+฿110.25</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Deposit & Payment Gateway Modal -->
-    <div id="depositModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative">
-            <button onclick="closeDepositModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
-            
-            <div class="border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-lg text-white">💳 ช่องทางชำระเงินและเติมเงินอัตโนมัติ</h3>
-                <p class="text-xs text-slate-400">ซื้อแพ็กเกจ VIP ลดพิเศษ: <span class="text-emerald-400 font-bold">499 THB</span> — ชำระด้วยบัตรเดบิต/เครดิตผ่าน Stripe</p>
-            </div>
-
-            <!-- Tabs (focus on Card/Stripe) -->
-            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
-                <button onclick="switchTab('card')" id="tabCard" class="py-2 text-xs font-medium rounded bg-emerald-600 text-white transition">ชำระด้วยบัตร (Stripe)</button>
-                <button onclick="switchTab('other')" id="tabOther" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">ช่องทางอื่น (สาธิต)</button>
-            </div>
-
-            <!-- Card / Stripe Tab -->
-            <div id="contentCard" class="space-y-4">
-                <div class="space-y-3">
-                    <div class="text-xs text-slate-300">ซื้อแพ็กเกจ VIP ราคาพิเศษ ฿499 — ชำระผ่าน Stripe</div>
-                    <div class="text-xs text-slate-400">หมายเหตุ: ปัจจุบันระบบตัวอย่างจะจำลองการไปยังหน้า Stripe Checkout. สำหรับเชื่อมต่อจริง ให้สร้าง Stripe Checkout Session ในฝั่งเซิร์ฟเวอร์ด้วย Publishable/Secret keys</div>
-                </div>
-                <button onclick="simulateStripeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                    ชำระ 499 THB ด้วยบัตร (Stripe) — จำลองการชำระเงิน
-                </button>
-            </div>
-
-            <!-- Other tab (legacy) -->
-            <div id="contentOther" class="space-y-4 hidden">
-                <div class="space-y-2">
-                    <label class="text-xs text-slate-300">(สาธิต) ระบุจำนวนเงินที่ต้องการเติม (THB):</label>
-                    <input type="number" id="qrAmountInput" value="1000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-bold text-sm">
-                </div>
-                <div class="flex flex-col items-center justify-center p-4 bg-white rounded-xl space-y-3">
-                    <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
-                        <svg class="w-36 h-36 mx-auto text-slate-900" viewBox="0 0 24 24" fill="currentColor"><path d="M2 2h8v8H2V2m2 2v4h4V4H4m8-2h8v8h-8V2m2 2v4h4V4h-4M2 12h8v8H2v-8m2 2v4h4v-4H4m10 2h2v2h-2v-2m4 0h2v2h-2v-2m-4 4h2v2h-2v-2m4 0h2v2h-2v-2m2-6h2v2h-2v-2m0 4h2v2h-2v-2z"/></svg>
-                    </div>
-                    <div class="text-center text-slate-900 text-xs font-bold">(สาธิต) ช่องทางเติมเงินอื่น ๆ</div>
-                </div>
-            </div>
-
-        </div>
+      </div>
+      <button onclick="openPaymentModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg px-4 py-2 text-sm shadow-lg shadow-emerald-900/40">
+        💳 VIP 499 THB
+      </button>
     </div>
+  </header>
 
-    <!-- JavaScript Logic -->
-    <script>
-        // Mock Matches Data (Premier League & La Liga) referencing UEA8 & Roobet
-        const matchesData = [
-            {
-                id: 1,
-                league: 'EPL',
-                teams: 'แมนเชสเตอร์ ซิตี้ vs อาร์เซนอล',
-                time: 'คืนนี้ 22:30 น.',
-                market: 'Over / Under 2.5',
-                side1: 'Over 2.5',
-                side2: 'Under 2.5',
-                odds1: 1.95,
-                odds2: 2.08,
-                roi: 2.45,
-                book1: 'UEA8',
-                book2: 'Roobet',
-                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
-                link2: 'https://roobet.com/?ref=beluga1999'
-            },
-            {
-                id: 2,
-                league: 'LaLiga',
-                teams: 'เรอัล มาดริด vs บาร์เซโลนา',
-                time: 'พรุ่งนี้ 02:00 น.',
-                market: 'Asian Handicap (-0.5)',
-                side1: 'เรอัล มาดริด -0.5',
-                side2: 'บาร์เซโลนา +0.5',
-                odds1: 2.02,
-                odds2: 2.01,
-                roi: 1.85,
-                book1: 'UEA8',
-                book2: 'Roobet',
-                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
-                link2: 'https://roobet.com/?ref=beluga1999'
-            },
-            {
-                id: 3,
-                league: 'EPL',
-                teams: 'ลิเวอร์พูล vs เชลซี',
-                time: 'เสาร์นี้ 19:30 น.',
-                market: 'Over / Under 3.0',
-                side1: 'Over 3.0',
-                side2: 'Under 3.0',
-                odds1: 1.98,
-                odds2: 2.05,
-                roi: 2.10,
-                book1: 'UEA8',
-                book2: 'Roobet',
-                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
-                link2: 'https://roobet.com/?ref=beluga1999'
-            }
-        ];
+  <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <section class="lg:col-span-2 space-y-4">
+      <div class="panel rounded-xl p-4 flex flex-wrap gap-3 items-center justify-between">
+        <div class="flex flex-wrap gap-2">
+          <button class="league-btn active px-3 py-2 rounded-lg text-sm bg-emerald-600 text-white" data-league="all">All</button>
+          <button class="league-btn px-3 py-2 rounded-lg text-sm bg-slate-800 text-slate-300" data-league="EPL">EPL</button>
+          <button class="league-btn px-3 py-2 rounded-lg text-sm bg-slate-800 text-slate-300" data-league="LaLiga">LaLiga</button>
+        </div>
+        <div class="text-xs text-slate-300">Minimum ROI: <span class="text-emerald-400 font-bold">1.5%</span></div>
+      </div>
+      <div id="matchesContainer" class="space-y-4"></div>
+    </section>
 
-        let currentSelectedMatch = null;
-        let calcMode = 'investment';
-        let manualMode = false;
+    <aside class="panel rounded-xl p-5 h-fit sticky top-24">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h2 class="font-bold text-base">Arbitrage calculator</h2>
+        <span class="text-xs px-2 py-1 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">Live</span>
+      </div>
 
-        function formatTHB(value) {
-            if (isNaN(value)) return '฿0.00';
-            return new Intl.NumberFormat('th-TH', {
-                style: 'currency',
-                currency: 'THB',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(value);
+      <div id="calcEmpty" class="py-8 text-center text-slate-500 text-sm">Choose a match to calculate recommended stakes.</div>
+
+      <div id="calcPanel" class="hidden space-y-4 mt-4">
+        <div class="rounded-lg border border-slate-800 bg-slate-950 p-3">
+          <div id="calcTitle" class="font-bold text-white">Match</div>
+          <div class="flex justify-between gap-2 text-xs text-slate-400 mt-1">
+            <span>Market: <span id="calcMarket" class="text-emerald-400">-</span></span>
+            <span>ROI: <span id="calcRoi" class="text-emerald-400">-</span></span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 rounded-lg bg-slate-950 p-1 border border-slate-800">
+          <button id="modeInvestment" onclick="setMode('investment')" class="py-2 rounded text-xs bg-emerald-600 text-white">Total stake</button>
+          <button id="modeProfit" onclick="setMode('profit')" class="py-2 rounded text-xs text-slate-300">Target profit</button>
+        </div>
+
+        <div class="space-y-2">
+          <label id="inputLabel" class="text-xs text-slate-300">Total stake (THB):</label>
+          <div class="relative">
+            <input id="targetInput" type="number" min="0" step="1" value="4500" class="premium-input w-full rounded-lg px-3 py-2 text-white font-bold text-sm" />
+            <span class="absolute right-3 top-2 text-xs text-slate-400">THB</span>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="text-xs font-bold text-slate-300">Recommended by site</div>
+
+          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <div class="flex justify-between items-center text-xs mb-2">
+              <span class="font-bold text-amber-400">Pinnacle</span>
+              <span id="odds1" class="text-white font-mono">1.95</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-xs text-slate-400">Primary</label>
+                <input id="stake1" type="number" step="0.01" value="0" class="premium-input w-full rounded-lg px-2 py-1.5 text-white text-xs" />
+              </div>
+              <div>
+                <label class="text-xs text-slate-400">Secondary</label>
+                <input id="stake1Alt" type="number" step="0.01" value="0" class="premium-input w-full rounded-lg px-2 py-1.5 text-white text-xs" />
+              </div>
+            </div>
+            <button onclick="openBookie('Pinnacle')" class="mt-3 w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg px-2 py-2 text-xs">Open Pinnacle</button>
+          </div>
+
+          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <div class="flex justify-between items-center text-xs mb-2">
+              <span class="font-bold text-cyan-400">1xLite</span>
+              <span id="odds2" class="text-white font-mono">2.08</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-xs text-slate-400">Primary</label>
+                <input id="stake2" type="number" step="0.01" value="0" class="premium-input w-full rounded-lg px-2 py-1.5 text-white text-xs" />
+              </div>
+              <div>
+                <label class="text-xs text-slate-400">Secondary</label>
+                <input id="stake2Alt" type="number" step="0.01" value="0" class="premium-input w-full rounded-lg px-2 py-1.5 text-white text-xs" />
+              </div>
+            </div>
+            <button onclick="openBookie('1xLite')" class="mt-3 w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold rounded-lg px-2 py-2 text-xs">Open 1xLite</button>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-800 bg-slate-950 p-3 text-xs space-y-2">
+          <div class="flex justify-between text-slate-400"><span>Total stake</span><span id="calcTotal" class="text-white font-bold">฿0.00</span></div>
+          <div class="flex justify-between text-slate-400"><span>Return if side 1 wins</span><span id="calcReturn1" class="text-emerald-400 font-bold">฿0.00</span></div>
+          <div class="flex justify-between text-slate-400"><span>Return if side 2 wins</span><span id="calcReturn2" class="text-emerald-400 font-bold">฿0.00</span></div>
+          <div class="flex justify-between text-slate-400"><span>Profit if side 1 wins</span><span id="calcProfit1" class="text-emerald-400 font-bold">฿0.00</span></div>
+          <div class="flex justify-between text-slate-400"><span>Profit if side 2 wins</span><span id="calcProfit2" class="text-emerald-400 font-bold">฿0.00</span></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div id="paymentModal" class="fixed inset-0 bg-slate-950/80 hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-lg relative">
+      <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">×</button>
+      <div class="border-b border-slate-800 pb-3 mb-4">
+        <h3 class="font-bold text-xl">VIP membership</h3>
+        <p class="text-sm text-slate-400">499 THB / month</p>
+      </div>
+      <div class="space-y-3">
+        <button onclick="startStripeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-3 rounded-lg">
+          Pay with Stripe (mock / live when key is configured)
+        </button>
+        <button onclick="closePaymentModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-3 rounded-lg">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const defaultData = [
+      { id: 'match-1', league: 'EPL', teams: 'Manchester City vs Arsenal', time: 'Tonight 22:30', market: 'Over / Under 2.5', side1: 'Over 2.5', side2: 'Under 2.5', odds1: 1.95, odds2: 2.08, roi: 2.45, book1: 'Pinnacle', book2: '1xLite', link1: 'https://www.pinnacle.com/en/?_gl=1*154o0tz*_gcl_au*MTI2Nzk4NDc3NC4xNzkxOTY2MjY0LjE4MjE2MjI1NjYuMTc5MjA0MTQyMi4xNzkyMDQxNjY1LjE4NjMzNjA1ODguMTc5MjA0MTM0MC4xNzkyMDQxNjY1*_ga*MzQxODU2NTA0LjE3OTE5NjYyNjc.*_ga_DXNRHBHDY9*czE3OTIwNDExOTckbzIkZzEkdDE3OTIwNDE4MDMkajQzJGwwJGgxODg0MjY3ODA1', link2: 'https://1xlite-34606.com/en' },
+      { id: 'match-2', league: 'LaLiga', teams: 'Real Madrid vs Barcelona', time: 'Tomorrow 02:00', market: 'Asian Handicap (-0.5)', side1: 'Real Madrid -0.5', side2: 'Barcelona +0.5', odds1: 2.02, odds2: 2.01, roi: 1.85, book1: 'Pinnacle', book2: '1xLite', link1: 'https://www.pinnacle.com/en/?_gl=1*154o0tz*_gcl_au*MTI2Nzk4NDc3NC4xNzkxOTY2MjY0LjE4MjE2MjI1NjYuMTc5MjA0MTQyMi4xNzkyMDQxNjY1LjE4NjMzNjA1ODguMTc5MjA0MTM0MC4xNzkyMDQxNjY1*_ga*MzQxODU2NTA0LjE3OTE5NjYyNjc.*_ga_DXNRHBHDY9*czE3OTIwNDExOTckbzIkZzEkdDE3OTIwNDE4MDMkajQzJGwwJGgxODg0MjY3ODA1', link2: 'https://1xlite-34606.com/en' },
+      { id: 'match-3', league: 'EPL', teams: 'Liverpool vs Chelsea', time: 'Saturday 19:30', market: 'Over / Under 3.0', side1: 'Over 3.0', side2: 'Under 3.0', odds1: 1.98, odds2: 2.05, roi: 2.10, book1: 'Pinnacle', book2: '1xLite', link1: 'https://www.pinnacle.com/en/?_gl=1*154o0tz*_gcl_au*MTI2Nzk4NDc3NC4xNzkxOTY2MjY0LjE4MjE2MjI1NjYuMTc5MjA0MTQyMi4xNzkyMDQxNjY1LjE4NjMzNjA1ODguMTc5MjA0MTM0MC4xNzkyMDQxNjY1*_ga*MzQxODU2NTA0LjE3OTE5NjYyNjc.*_ga_DXNRHBHDY9*czE3OTIwNDExOTckbzIkZzEkdDE3OTIwNDE4MDMkajQzJGwwJGgxODg0MjY3ODA1', link2: 'https://1xlite-34606.com/en' }
+    ];
+
+    let matches = [...defaultData];
+    let selectedId = null;
+    let mode = 'investment';
+    let lastFetch = null;
+
+    const formatTHB = (v) => new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 2 }).format(Number(v || 0));
+
+    function renderMatches(filter = 'all') {
+      const root = document.getElementById('matchesContainer');
+      root.innerHTML = '';
+      const list = filter === 'all' ? matches : matches.filter(m => m.league === filter);
+      list.forEach((m) => {
+        const card = document.createElement('div');
+        card.className = 'panel rounded-xl p-4';
+        card.innerHTML = `
+          <div class="flex justify-between items-start gap-3">
+            <div>
+              <span class="text-[11px] rounded px-2 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${m.league === 'EPL' ? 'Premier League' : 'LaLiga'}</span>
+              <h3 class="font-bold mt-2 text-white">${m.teams}</h3>
+              <p class="text-xs text-slate-400 mt-1">${m.time} · ${m.market}</p>
+            </div>
+            <div class="text-right">
+              <div class="text-[11px] text-slate-400">ROI</div>
+              <div class="text-xl font-bold text-emerald-400">+${m.roi}%</div>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-slate-950 p-3 border border-slate-800">
+            <div>
+              <div class="text-[11px] text-slate-400">${m.book1}</div>
+              <div class="font-bold text-white">${m.side1}</div>
+              <div class="text-amber-400 font-mono text-xs">Odds: ${m.odds1}</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-400">${m.book2}</div>
+              <div class="font-bold text-white">${m.side2}</div>
+              <div class="text-cyan-400 font-mono text-xs">Odds: ${m.odds2}</div>
+            </div>
+          </div>
+          <div class="mt-4 flex justify-between items-center">
+            <div class="flex gap-2">
+              <a href="${m.link1}" target="_blank" class="bg-amber-600 hover:bg-amber-500 text-slate-950 text-[11px] px-3 py-2 rounded font-bold">Open ${m.book1}</a>
+              <a href="${m.link2}" target="_blank" class="bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-[11px] px-3 py-2 rounded font-bold">Open ${m.book2}</a>
+            </div>
+            <button onclick="selectMatch('${m.id}')" class="bg-emerald-600 hover:bg-emerald-500 rounded-lg text-white text-xs px-3 py-2 font-bold">Calculate</button>
+          </div>
+        `;
+        root.appendChild(card);
+      });
+    }
+
+    function selectMatch(id) {
+      const next = matches.find(m => m.id === id);
+      if (!next) return;
+      selectedId = id;
+      const title = document.getElementById('calcTitle');
+      const market = document.getElementById('calcMarket');
+      const roi = document.getElementById('calcRoi');
+      title.textContent = next.teams;
+      market.textContent = next.market;
+      roi.textContent = `+${next.roi}%`;
+      document.getElementById('calcEmpty').classList.add('hidden');
+      document.getElementById('calcPanel').classList.remove('hidden');
+      document.getElementById('odds1').textContent = next.odds1;
+      document.getElementById('odds2').textContent = next.odds2;
+      document.getElementById('stake1').value = (4500 * (1 / next.odds1) / ((1 / next.odds1) + (1 / next.odds2))).toFixed(2);
+      document.getElementById('stake2').value = (4500 * (1 / next.odds2) / ((1 / next.odds1) + (1 / next.odds2))).toFixed(2);
+      document.getElementById('stake1Alt').value = '0.00';
+      document.getElementById('stake2Alt').value = '0.00';
+      updateCalculator();
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      const inv = document.getElementById('modeInvestment');
+      const pro = document.getElementById('modeProfit');
+      const label = document.getElementById('inputLabel');
+      if (nextMode === 'investment') {
+        inv.className = 'py-2 rounded text-xs bg-emerald-600 text-white';
+        pro.className = 'py-2 rounded text-xs text-slate-300';
+        label.textContent = 'Total stake (THB):';
+      } else {
+        inv.className = 'py-2 rounded text-xs text-slate-300';
+        pro.className = 'py-2 rounded text-xs bg-emerald-600 text-white';
+        label.textContent = 'Target profit (THB):';
+      }
+      updateCalculator();
+    }
+
+    function openBookie(name) {
+      const match = matches.find(m => m.id === selectedId) || matches[0];
+      const href = name === 'Pinnacle' ? match.link1 : match.link2;
+      const paramStake = name === 'Pinnacle' ? Number(document.getElementById('stake1').value || 0) : Number(document.getElementById('stake2').value || 0);
+      const url = new URL(href);
+      url.searchParams.set('source', 'siamarb');
+      if (paramStake > 0) url.searchParams.set('amount', paramStake.toFixed(2));
+      window.open(url.toString(), '_blank', 'noopener,noreferrer');
+    }
+
+    function updateCalculator() {
+      if (!selectedId) return;
+      const m = matches.find(item => item.id === selectedId);
+      if (!m) return;
+      const o1 = Number(m.odds1 || 0);
+      const o2 = Number(m.odds2 || 0);
+      const totalStakeInput = Number(document.getElementById('targetInput').value || 0);
+      const stakeA = Number(document.getElementById('stake1').value || 0);
+      const stakeB = Number(document.getElementById('stake2').value || 0);
+      const total = stakeA + stakeB;
+      const return1 = stakeA * o1;
+      const return2 = stakeB * o2;
+      const profit1 = return1 - total;
+      const profit2 = return2 - total;
+
+      document.getElementById('calcTotal').textContent = formatTHB(total);
+      document.getElementById('calcReturn1').textContent = formatTHB(return1);
+      document.getElementById('calcReturn2').textContent = formatTHB(return2);
+      document.getElementById('calcProfit1').textContent = formatTHB(profit1);
+      document.getElementById('calcProfit2').textContent = formatTHB(profit2);
+
+      if (mode === 'profit') {
+        const targetProfit = Number(document.getElementById('targetInput').value || 0);
+        const totalStake = targetProfit / (((o1 * o2) - (o1 + o2) + 1) / ((o1 - 1) + (o2 - 1)) || 1);
+        const calcStakeA = totalStake * (1 / o1) / ((1 / o1) + (1 / o2));
+        const calcStakeB = totalStake * (1 / o2) / ((1 / o1) + (1 / o2));
+        document.getElementById('stake1').value = calcStakeA.toFixed(2);
+        document.getElementById('stake2').value = calcStakeB.toFixed(2);
+      }
+    }
+
+    async function fetchLiveOdds() {
+      try {
+        const res = await fetch('/api/odds', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Fetch failed');
+        const data = await res.json();
+        if (Array.isArray(data) && data.length) {
+          matches = data;
+          renderMatches(document.querySelector('.league-btn.active')?.dataset.league || 'all');
+          if (selectedId) {
+            const picked = matches.find(m => m.id === selectedId) || matches[0];
+            selectedId = picked.id;
+            selectMatch(selectedId);
+          }
+          lastFetch = new Date();
+          document.getElementById('lastUpdatedText').textContent = `Updated ${lastFetch.toLocaleTimeString()}`;
         }
+      } catch (err) {
+        console.warn('Using mock data', err);
+        matches = [...defaultData];
+        renderMatches(document.querySelector('.league-btn.active')?.dataset.league || 'all');
+        document.getElementById('lastUpdatedText').textContent = 'Mock data';
+      }
+    }
 
-        function renderMatches(filter = 'all') {
-            const container = document.getElementById('matchesContainer');
-            container.innerHTML = '';
+    document.querySelectorAll('.league-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.league-btn').forEach(el => {
+          el.classList.remove('active', 'bg-emerald-600', 'text-white');
+          el.classList.add('bg-slate-800', 'text-slate-300');
+        });
+        btn.classList.add('active', 'bg-emerald-600', 'text-white');
+        btn.classList.remove('bg-slate-800', 'text-slate-300');
+        renderMatches(btn.dataset.league || 'all');
+      });
+    });
 
-            const filtered = filter === 'all' ? matchesData : matchesData.filter(m => m.league === filter);
+    document.getElementById('targetInput').addEventListener('input', updateCalculator);
+    document.getElementById('stake1').addEventListener('input', updateCalculator);
+    document.getElementById('stake2').addEventListener('input', updateCalculator);
 
-            filtered.forEach(m => {
-                const card = document.createElement('div');
-                card.className = "bg-slate-900 border border-slate-800 hover:border-emerald-500/50 p-4 rounded-xl transition space-y-3 shadow-lg";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-medium">${m.league === 'EPL' ? 'พรีเมียร์ลีก' : 'ลาลีกา สเปน'}</span>
-                            <h3 class="font-bold text-base text-white mt-1">${m.teams}</h3>
-                            <span class="text-xs text-slate-400">${m.time} | ตลาด: ${m.market}</span>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xs text-slate-400">กำไรชัวร์ (ROI)</div>
-                            <div class="text-lg font-extrabold text-emerald-400">+${m.roi}%</div>
-                        </div>
-                    </div>
+    function openPaymentModal() {
+      document.getElementById('paymentModal').classList.remove('hidden');
+      document.getElementById('paymentModal').classList.add('flex');
+    }
 
-                    <div class="grid grid-cols-2 gap-3 bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
-                        <div>
-                            <div class="text-slate-400">ฝั่งที่ 1 (${m.book1}):</div>
-                            <div class="font-bold text-white">${m.side1}</div>
-                            <div class="text-amber-400 font-mono mt-0.5">Odds: ${m.odds1}</div>
-                        </div>
-                        <div>
-                            <div class="text-slate-400">ฝั่งที่ 2 (${m.book2}):</div>
-                            <div class="font-bold text-white">${m.side2}</div>
-                            <div class="text-cyan-400 font-mono mt-0.5">Odds: ${m.odds2}</div>
-                        </div>
-                    </div>
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.add('hidden');
+      document.getElementById('paymentModal').classList.remove('flex');
+    }
 
-                    <div class="flex justify-between items-center pt-1">
-                        <div class="flex gap-2">
-                            <a href="${m.link1}" target="_blank" rel="noopener noreferrer" class="text-xs bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-slate-950 border border-amber-600/30 px-3 py-1.5 rounded transition font-medium">แทง UEA8</a>
-                            <a href="${m.link2}" target="_blank" rel="noopener noreferrer" class="text-xs bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-slate-950 border border-cyan-600/30 px-3 py-1.5 rounded transition font-medium">แทง Roobet</a>
-                        </div>
-                        <button onclick="selectMatch(${m.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-xs font-bold transition shadow-md" aria-label="คำนวณคู่นี้ ${m.teams}">
-                            🧮 คำนวณคู่นี้
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+    async function startStripeCheckout() {
+      try {
+        const res = await fetch('/api/stripe-create-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'vip', amount: 499 }) });
+        const data = await res.json();
+        if (res.ok && data.url) {
+          window.location.href = data.url;
+          return;
         }
+        alert('Stripe key is not configured yet. Mock checkout only.');
+      } catch (e) {
+        alert('Stripe key is not configured yet. Mock checkout only.');
+      }
+    }
 
-        function filterLeague(league) {
-            document.querySelectorAll('.league-btn').forEach(btn => {
-                btn.classList.remove('bg-emerald-600', 'text-white');
-                btn.classList.add('bg-slate-800', 'text-slate-300');
-                if (btn.dataset.league === league) {
-                    btn.classList.add('bg-emerald-600', 'text-white');
-                    btn.classList.remove('bg-slate-800', 'text-slate-300');
-                }
-            });
-            renderMatches(league);
-        }
-
-        function selectMatch(id) {
-            currentSelectedMatch = matchesData.find(m => m.id === id);
-            document.getElementById('calcNoSelection').classList.add('hidden');
-            document.getElementById('calcActivePanel').classList.remove('hidden');
-
-            document.getElementById('calcMatchTitle').innerText = currentSelectedMatch.teams;
-            document.getElementById('calcMarket').innerText = currentSelectedMatch.market;
-            document.getElementById('calcRoiBadge').innerText = `+${currentSelectedMatch.roi}%`;
-
-            document.getElementById('manualBook1').innerText = currentSelectedMatch.book1;
-            document.getElementById('manualBook2').innerText = currentSelectedMatch.book2;
-            document.getElementById('manualOdds1').innerText = `Odds: ${currentSelectedMatch.odds1}`;
-            document.getElementById('manualOdds2').innerText = `Odds: ${currentSelectedMatch.odds2}`;
-
-            document.getElementById('manualSide1Name').value = currentSelectedMatch.side1;
-            document.getElementById('manualSide2Name').value = currentSelectedMatch.side2;
-            document.getElementById('manualStake1').value = (currentSelectedMatch.odds1 && currentSelectedMatch.odds2) ? (4500 * (1 / currentSelectedMatch.odds1) / (1/currentSelectedMatch.odds1 + 1/currentSelectedMatch.odds2)).toFixed(2) : '0.00';
-            document.getElementById('manualStake2').value = (currentSelectedMatch.odds1 && currentSelectedMatch.odds2) ? (4500 * (1 / currentSelectedMatch.odds2) / (1/currentSelectedMatch.odds1 + 1/currentSelectedMatch.odds2)).toFixed(2) : '0.00';
-
-            calculateStakes();
-        }
-
-        function setCalcMode(mode) {
-            calcMode = mode;
-            const invBtn = document.getElementById('modeInvBtn');
-            const profitBtn = document.getElementById('modeProfitBtn');
-            const inputLabel = document.getElementById('inputLabel');
-            const inputUnit = document.getElementById('inputUnit');
-            const targetInput = document.getElementById('targetInput');
-
-            if (mode === 'investment') {
-                invBtn.className = "py-1.5 text-xs font-medium rounded bg-emerald-600 text-white transition";
-                profitBtn.className = "py-1.5 text-xs font-medium rounded text-slate-400 hover:text-white transition";
-                inputLabel.innerText = "ระบุเงินเดิมพันรวมทั้งหมด (บาท):";
-                inputUnit.innerText = "THB";
-                if (!targetInput.value || parseFloat(targetInput.value) <= 0) targetInput.value = "4500";
-            } else {
-                profitBtn.className = "py-1.5 text-xs font-medium rounded bg-emerald-600 text-white transition";
-                invBtn.className = "py-1.5 text-xs font-medium rounded text-slate-400 hover:text-white transition";
-                inputLabel.innerText = "ระบุผลกำไรสุทธิที่ต้องการ (บาท):";
-                inputUnit.innerText = "THB";
-                if (!targetInput.value || parseFloat(targetInput.value) <= 0) targetInput.value = "150";
-            }
-            calculateStakes();
-        }
-
-        function setCalcManual(isManual) {
-            manualMode = isManual;
-            document.getElementById('manualInputBlock').classList.toggle('hidden', !isManual);
-            document.getElementById('autoInputBlock').classList.toggle('hidden', isManual);
-            calculateStakes();
-        }
-
-        function calculateStakes() {
-            if (!currentSelectedMatch) return;
-            const o1 = parseFloat(currentSelectedMatch.odds1);
-            const o2 = parseFloat(currentSelectedMatch.odds2);
-
-            const sumTotalInvEl = document.getElementById('sumTotalInv');
-            const returnIf1El = document.getElementById('returnIf1');
-            const returnIf2El = document.getElementById('returnIf2');
-            const profitIf1El = document.getElementById('profitIf1');
-            const profitIf2El = document.getElementById('profitIf2');
-
-            let stake1 = 0;
-            let stake2 = 0;
-
-            if (manualMode) {
-                stake1 = parseFloat(document.getElementById('manualStake1').value) || 0;
-                stake2 = parseFloat(document.getElementById('manualStake2').value) || 0;
-            } else {
-                // auto distribution (existing logic)
-                const val = parseFloat(document.getElementById('targetInput').value) || 0;
-                const inv1 = 1 / o1;
-                const inv2 = 1 / o2;
-                const sumInv = inv1 + inv2;
-                stake1 = val * (inv1 / sumInv);
-                stake2 = val * (inv2 / sumInv);
-            }
-
-            const totalInv = stake1 + stake2;
-            const retIf1 = stake1 * o1; // if outcome pays site1
-            const retIf2 = stake2 * o2; // if outcome pays site2
-
-            const profitIf1 = retIf1 - totalInv;
-            const profitIf2 = retIf2 - totalInv;
-
-            sumTotalInvEl.innerText = formatTHB(totalInv);
-            returnIf1El.innerText = formatTHB(retIf1);
-            returnIf2El.innerText = formatTHB(retIf2);
-            profitIf1El.innerText = `${profitIf1 >= 0 ? '+' : '-'}${formatTHB(Math.abs(profitIf1))}`;
-            profitIf2El.innerText = `${profitIf2 >= 0 ? '+' : '-'}${formatTHB(Math.abs(profitIf2))}`;
-        }
-
-        function placeBetExternal(siteIndex) {
-            if (!currentSelectedMatch) return;
-            if (siteIndex === 1) {
-                // open UEA8 link
-                window.open(currentSelectedMatch.link1, '_blank', 'noopener');
-            } else {
-                window.open(currentSelectedMatch.link2, '_blank', 'noopener');
-            }
-        }
-
-        // Deposit modal / Stripe simulation
-        function openDepositModal() {
-            document.getElementById('depositModal').classList.remove('hidden');
-            switchTab('card');
-        }
-        function closeDepositModal() {
-            document.getElementById('depositModal').classList.add('hidden');
-        }
-
-        function switchTab(tab) {
-            document.getElementById('contentCard').classList.add('hidden');
-            document.getElementById('contentOther').classList.add('hidden');
-            document.getElementById('tabCard').className = "py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition";
-            document.getElementById('tabOther').className = "py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition";
-
-            if (tab === 'card') {
-                document.getElementById('contentCard').classList.remove('hidden');
-                document.getElementById('tabCard').className = "py-2 text-xs font-medium rounded bg-emerald-600 text-white transition";
-            } else {
-                document.getElementById('contentOther').classList.remove('hidden');
-                document.getElementById('tabOther').className = "py-2 text-xs font-medium rounded bg-emerald-600 text-white transition";
-            }
-        }
-
-        function simulateStripeCheckout() {
-            // This is a client-side simulation. For production integrate Stripe Checkout on server.
-            alert('จำลองการไปยังหน้า Stripe Checkout เพื่อชำระเงิน 499 THB — สำหรับการผนวกจริง โปรดสร้าง Checkout Session จากฝั่งเซิร์ฟเวอร์ แล้วรีไดเรคท์ไปยัง URL ที่ได้');
-            // Example: window.location = 'https://your-backend.example/create-checkout-session';
-        }
-
-        renderMatches('all');
-    </script>
+    renderMatches('all');
+    fetchLiveOdds();
+    setInterval(fetchLiveOdds, 20000);
+  </script>
 </body>
 </html>
