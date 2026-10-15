@@ -12,20 +12,18 @@
         .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); }
         .premium-input {
             background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(148, 163, 184, 0.2);
+            border: 1px solid rgba(148, 163, 184, 0.12);
             transition: all 0.2s ease;
             box-shadow: inset 0 0 0 1px rgba(16,185,129,0.03);
         }
         .premium-input:focus {
             outline: none;
             border-color: rgba(16, 185, 129, 0.8);
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
         }
-        .status-dot {
-            width: 0.55rem; height: 0.55rem; border-radius: 9999px; display: inline-block;
-            animation: pulse 1.8s infinite;
-        }
+        .status-dot { width: 0.55rem; height: 0.55rem; border-radius: 9999px; display: inline-block; animation: pulse 1.8s infinite; }
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.45; } }
+        .small { font-size: 11px; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
@@ -105,48 +103,86 @@
                 </div>
 
                 <div id="manualInputBlock" class="space-y-3 hidden">
-                    <div class="text-xs font-bold text-slate-300">กำหนดสัดส่วนการวางเงินแยกตามเว็บ:</div>
+                    <div class="text-xs font-bold text-slate-300">กำหนดสัดส่วนการวางเงินแยกตามเว็บ (คุณสามารถวางทั้งสองฝั่งในแต่ละเว็บได้)</div>
                     <div class="grid grid-cols-1 gap-3">
+                        <!-- Site 1 block -->
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 shadow-inner shadow-slate-900/40">
                             <div class="flex justify-between items-center text-xs mb-2">
-                                <span class="font-bold text-amber-400">เว็บที่ 1: <span id="manualBook1">UEA8</span></span>
-                                <span id="manualOdds1" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 1.95</span>
+                                <div>
+                                    <div class="font-bold text-amber-400">เว็บที่ 1: <span id="manualBook1">Pinnacle</span></div>
+                                    <div class="small text-slate-400">ทีมหลัก: <span id="manualSide1NameLabel">Over 2.5</span></div>
+                                </div>
+                                <div id="manualOdds1" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 1.95</div>
                             </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">วางบนทีม:</label>
-                                <input type="text" id="manualSide1Name" value="Over 2.5" class="premium-input w-full rounded-lg px-2 py-1.5 text-white text-xs">
+
+                            <div class="mt-2 grid grid-cols-2 gap-2 items-center">
+                                <div>
+                                    <label class="text-xs text-slate-400">วางบนทีม (หลัก)</label>
+                                    <div class="flex gap-2">
+                                        <select id="manualStake1_primary_type" class="premium-input rounded-l px-2 py-1 text-xs">
+                                            <option value="amount">จำนวนเงิน</option>
+                                            <option value="profit">กำไรที่ต้องการ</option>
+                                        </select>
+                                        <input type="number" min="0" step="0.01" id="manualStake1_primary" value="2307.69" class="premium-input w-full rounded-r px-2 py-1.5 text-white text-xs" oninput="calculateStakes()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-slate-400">วางบนทีม (สำรอง)</label>
+                                    <div class="flex gap-2">
+                                        <select id="manualStake1_secondary_type" class="premium-input rounded-l px-2 py-1 text-xs">
+                                            <option value="amount">จำนวนเงิน</option>
+                                            <option value="profit">กำไรที่ต้องการ</option>
+                                        </select>
+                                        <input type="number" min="0" step="0.01" id="manualStake1_secondary" value="0.00" class="premium-input w-full rounded-r px-2 py-1.5 text-white text-xs" oninput="calculateStakes()">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">จำนวนเงิน:</label>
-                                <input type="number" min="0" step="0.01" id="manualStake1" value="2307.69" class="premium-input w-full rounded-lg px-2 py-1.5 text-white text-xs" oninput="calculateStakes()">
-                            </div>
+
                             <div class="mt-3 flex gap-2">
-                                <button type="button" onclick="quickSetStake(1,0.5)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[10px]">0.5x</button>
-                                <button type="button" onclick="quickSetStake(1,1)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[10px]">1x</button>
-                                <button type="button" onclick="quickSetStake(1,2)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[10px]">2x</button>
+                                <button type="button" onclick="applyRecommendation(1)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[12px]">ใช้คำแนะนำ</button>
+                                <button type="button" onclick="copyBetDetails(1)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 py-1 rounded text-[12px]">คัดลอกรายละเอียด</button>
+                                <button type="button" onclick="placeBetExternal(1)" class="flex-1 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-2 py-1 rounded text-[12px]">👉 เปิดที่ Pinnacle</button>
                             </div>
-                            <button onclick="placeBetExternal(1)" class="w-full mt-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพันที่ UEA8</button>
                         </div>
 
+                        <!-- Site 2 block -->
                         <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 shadow-inner shadow-slate-900/40">
                             <div class="flex justify-between items-center text-xs mb-2">
-                                <span class="font-bold text-cyan-400">เว็บที่ 2: <span id="manualBook2">Roobet</span></span>
-                                <span id="manualOdds2" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 2.08</span>
+                                <div>
+                                    <div class="font-bold text-cyan-400">เว็บที่ 2: <span id="manualBook2">1xLite</span></div>
+                                    <div class="small text-slate-400">ทีมหลัก: <span id="manualSide2NameLabel">Under 2.5</span></div>
+                                </div>
+                                <div id="manualOdds2" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 2.08</div>
                             </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">วางบนทีม:</label>
-                                <input type="text" id="manualSide2Name" value="Under 2.5" class="premium-input w-full rounded-lg px-2 py-1.5 text-white text-xs">
+
+                            <div class="mt-2 grid grid-cols-2 gap-2 items-center">
+                                <div>
+                                    <label class="text-xs text-slate-400">วางบนทีม (หลัก)</label>
+                                    <div class="flex gap-2">
+                                        <select id="manualStake2_primary_type" class="premium-input rounded-l px-2 py-1 text-xs">
+                                            <option value="amount">จำนวนเงิน</option>
+                                            <option value="profit">กำไรที่ต้องการ</option>
+                                        </select>
+                                        <input type="number" min="0" step="0.01" id="manualStake2_primary" value="2192.31" class="premium-input w-full rounded-r px-2 py-1.5 text-white text-xs" oninput="calculateStakes()">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-slate-400">วางบนทีม (สำรอง)</label>
+                                    <div class="flex gap-2">
+                                        <select id="manualStake2_secondary_type" class="premium-input rounded-l px-2 py-1 text-xs">
+                                            <option value="amount">จำนวนเงิน</option>
+                                            <option value="profit">กำไรที่ต้องการ</option>
+                                        </select>
+                                        <input type="number" min="0" step="0.01" id="manualStake2_secondary" value="0.00" class="premium-input w-full rounded-r px-2 py-1.5 text-white text-xs" oninput="calculateStakes()">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">จำนวนเงิน:</label>
-                                <input type="number" min="0" step="0.01" id="manualStake2" value="2192.31" class="premium-input w-full rounded-lg px-2 py-1.5 text-white text-xs" oninput="calculateStakes()">
-                            </div>
+
                             <div class="mt-3 flex gap-2">
-                                <button type="button" onclick="quickSetStake(2,0.5)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[10px]">0.5x</button>
-                                <button type="button" onclick="quickSetStake(2,1)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[10px]">1x</button>
-                                <button type="button" onclick="quickSetStake(2,2)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[10px]">2x</button>
+                                <button type="button" onclick="applyRecommendation(2)" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-1 rounded text-[12px]">ใช้คำแนะนำ</button>
+                                <button type="button" onclick="copyBetDetails(2)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-200 px-2 py-1 rounded text-[12px]">คัดลอกรายละเอียด</button>
+                                <button type="button" onclick="placeBetExternal(2)" class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold px-2 py-1 rounded text-[12px]">👉 เปิดที่ 1xLite</button>
                             </div>
-                            <button onclick="placeBetExternal(2)" class="w-full mt-3 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพันที่ Roobet</button>
                         </div>
                     </div>
                 </div>
@@ -176,8 +212,12 @@
                                 <span id="profitIf2" class="text-emerald-400">+฿110.25</span>
                             </div>
                         </div>
+                        <div class="pt-2 text-xs text-slate-400">
+                            หมายเหตุ: ตลาดบางประเภท (เช่น "Draw no bet") จะคืนเงินเมื่อเสมอ — หน้าตัวอย่างนี้สมมติว่าหากรายการเป็นแบบคืนเงินเมื่อเสมอ ผู้เล่นจะได้รับเงินคืนในกรณีเสมอ
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </main>
@@ -198,11 +238,9 @@
             <div id="contentCard" class="space-y-4">
                 <div class="space-y-3">
                     <div class="text-xs text-slate-300">ซื้อแพ็กเกจ VIP ราคาพิเศษ ฿499 — ชำระผ่าน Stripe</div>
-                    <div class="text-xs text-slate-400">หมายเหตุ: สำหรับต่อเชื่อมจริง ให้กำหนด STRIPE_SECRET_KEY ใน Vercel และใช้ URL ที่ generated จาก serverless endpoint</div>
+                    <div class="text-xs text-slate-400">หมายเหตุ: สำหรับเชื่อมต่อจริง ให้กำหนด STRIPE_SECRET_KEY ใน Vercel และใช้ URL ที่ generated จาก serverless endpoint</div>
                 </div>
-                <button onclick="simulateStripeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                    ชำระ 499 THB ด้วยบัตร (Stripe) — จำลองการชำระเงิน
-                </button>
+                <button onclick="simulateStripeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition">ชำระ 499 THB ด้วยบัตร (Stripe) — จำลองการชำระเงิน</button>
             </div>
 
             <div id="contentOther" class="space-y-4 hidden">
@@ -221,55 +259,11 @@
     </div>
 
     <script>
+        // default mock data (used as fallback)
         const defaultMatchesData = [
-            {
-                id: 1,
-                league: 'EPL',
-                teams: 'แมนเชสเตอร์ ซิตี้ vs อาร์เซนอล',
-                time: 'คืนนี้ 22:30 น.',
-                market: 'Over / Under 2.5',
-                side1: 'Over 2.5',
-                side2: 'Under 2.5',
-                odds1: 1.95,
-                odds2: 2.08,
-                roi: 2.45,
-                book1: 'UEA8',
-                book2: 'Roobet',
-                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
-                link2: 'https://roobet.com/?ref=beluga1999'
-            },
-            {
-                id: 2,
-                league: 'LaLiga',
-                teams: 'เรอัล มาดริด vs บาร์เซโลนา',
-                time: 'พรุ่งนี้ 02:00 น.',
-                market: 'Asian Handicap (-0.5)',
-                side1: 'เรอัล มาดริด -0.5',
-                side2: 'บาร์เซโลนา +0.5',
-                odds1: 2.02,
-                odds2: 2.01,
-                roi: 1.85,
-                book1: 'UEA8',
-                book2: 'Roobet',
-                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
-                link2: 'https://roobet.com/?ref=beluga1999'
-            },
-            {
-                id: 3,
-                league: 'EPL',
-                teams: 'ลิเวอร์พูล vs เชลซี',
-                time: 'เสาร์นี้ 19:30 น.',
-                market: 'Over / Under 3.0',
-                side1: 'Over 3.0',
-                side2: 'Under 3.0',
-                odds1: 1.98,
-                odds2: 2.05,
-                roi: 2.10,
-                book1: 'UEA8',
-                book2: 'Roobet',
-                link1: 'https://www.uea8chokdee.com/en-th/register?refid=okgvitjq',
-                link2: 'https://roobet.com/?ref=beluga1999'
-            }
+            { id: 1, league: 'EPL', teams: 'แมนเชสเตอร์ ซิตี้ vs อาร์เซนอล', time: 'คืนนี้ 22:30 น.', market: 'Over / Under 2.5', side1: 'Over 2.5', side2: 'Under 2.5', odds1: 1.95, odds2: 2.08, roi: 2.45, book1: 'Pinnacle', book2: '1xLite', link1: 'https://www.pinnacle.com/en/?_gl=1*154o0tz*_gcl_au*MTI2Nzk4NDc3NC4xNzkxOTY2MjY0LjE4MjE2MjI1NjYuMTc5MjA0MTQyMi4xNzkyMDQxNjY1LjE4NjMzNjA1ODguMTc5MjA0MTM0MC4xNzkyMDQxNjY1*_ga*MzQxODU2NTA0LjE3OTE5NjYyNjc.*_ga_DXNRHBHDY9*czE3OTIwNDExOTckbzIkZzEkdDE3OTIwNDE4MDMkajQzJGwwJGgxODg0MjY3ODA1', link2: 'https://1xlite-34606.com/en' },
+            { id: 2, league: 'LaLiga', teams: 'เรอัล มาดริด vs บาร์เซโลนา', time: 'พรุ่งนี้ 02:00 น.', market: 'Asian Handicap (-0.5)', side1: 'เรอัล มาดริด -0.5', side2: 'บาร์เซโลนา +0.5', odds1: 2.02, odds2: 2.01, roi: 1.85, book1: 'Pinnacle', book2: '1xLite', link1: 'https://www.pinnacle.com/en/?_gl=1*154o0tz*_gcl_au*MTI2Nzk4NDc3NC4xNzkxOTY2MjY0LjE4MjE2MjI1NjYuMTc5MjA0MTQyMi4xNzkyMDQxNjY1LjE4NjMzNjA1ODguMTc5MjA0MTM0MC4xNzkyMDQxNjY1*_ga*MzQxODU2NTA0LjE3OTE5NjYyNjc.*_ga_DXNRHBHDY9*czE3OTIwNDExOTckbzIkZzEkdDE3OTIwNDE4MDMkajQzJGwwJGgxODg0MjY3ODA1', link2: 'https://1xlite-34606.com/en' },
+            { id: 3, league: 'EPL', teams: 'ลิเวอร์พูล vs เชลซี', time: 'เสาร์นี้ 19:30 น.', market: 'Over / Under 3.0', side1: 'Over 3.0', side2: 'Under 3.0', odds1: 1.98, odds2: 2.05, roi: 2.10, book1: 'Pinnacle', book2: '1xLite', link1: 'https://www.pinnacle.com/en/?_gl=1*154o0tz*_gcl_au*MTI2Nzk4NDc3NC4xNzkxOTY2MjY0LjE4MjE2MjI1NjYuMTc5MjA0MTQyMi4xNzkyMDQxNjY1LjE4NjMzNjA1ODguMTc5MjA0MTM0MC4xNzkyMDQxNjY1*_ga*MzQxODU2NTA0LjE3OTE5NjYyNjc.*_ga_DXNRHBHDY9*czE3OTIwNDExOTckbzIkZzEkdDE3OTIwNDE4MDMkajQzJGwwJGgxODg0MjY3ODA1', link2: 'https://1xlite-34606.com/en' }
         ];
 
         let matchesData = [...defaultMatchesData];
@@ -294,10 +288,7 @@
                     renderMatches(document.querySelector('.league-btn.active')?.dataset?.league || 'all');
                     if (currentSelectedMatch) {
                         const match = matchesData.find(m => m.id === currentSelectedMatch.id);
-                        if (match) {
-                            currentSelectedMatch = match;
-                            selectMatch(match.id);
-                        }
+                        if (match) { currentSelectedMatch = match; selectMatch(match.id); }
                     }
                 } else {
                     matchesData = [...defaultMatchesData];
@@ -345,8 +336,8 @@
 
                     <div class="flex justify-between items-center pt-1">
                         <div class="flex gap-2">
-                            <a href="${m.link1}" target="_blank" rel="noopener noreferrer" class="text-xs bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-slate-950 border border-amber-600/30 px-3 py-1.5 rounded transition font-medium">แทง UEA8</a>
-                            <a href="${m.link2}" target="_blank" rel="noopener noreferrer" class="text-xs bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-slate-950 border border-cyan-600/30 px-3 py-1.5 rounded transition font-medium">แทง Roobet</a>
+                            <a href="${m.link1}" target="_blank" rel="noopener noreferrer" class="text-xs bg-amber-600/20 hover:bg-amber-600 text-amber-300 hover:text-slate-950 border border-amber-600/30 px-3 py-1.5 rounded transition font-medium">แทง ${m.book1}</a>
+                            <a href="${m.link2}" target="_blank" rel="noopener noreferrer" class="text-xs bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-slate-950 border border-cyan-600/30 px-3 py-1.5 rounded transition font-medium">แทง ${m.book2}</a>
                         </div>
                         <button onclick="selectMatch(${m.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded text-xs font-bold transition shadow-md" aria-label="คำนวณคู่นี้ ${m.teams}">🧮 คำนวณคู่นี้</button>
                     </div>
@@ -376,23 +367,36 @@
             document.getElementById('calcMatchTitle').innerText = currentSelectedMatch.teams;
             document.getElementById('calcMarket').innerText = currentSelectedMatch.market;
             document.getElementById('calcRoiBadge').innerText = `+${currentSelectedMatch.roi}%`;
-            document.getElementById('manualBook1').innerText = currentSelectedMatch.book1;
-            document.getElementById('manualBook2').innerText = currentSelectedMatch.book2;
+
+            // Update manual labels and odds
+            document.getElementById('manualBook1').innerText = currentSelectedMatch.book1 || 'เว็บที่ 1';
+            document.getElementById('manualBook2').innerText = currentSelectedMatch.book2 || 'เว็บที่ 2';
             document.getElementById('manualOdds1').innerText = `Odds: ${currentSelectedMatch.odds1}`;
             document.getElementById('manualOdds2').innerText = `Odds: ${currentSelectedMatch.odds2}`;
-            document.getElementById('manualSide1Name').value = currentSelectedMatch.side1;
-            document.getElementById('manualSide2Name').value = currentSelectedMatch.side2;
+            document.getElementById('manualSide1NameLabel').innerText = currentSelectedMatch.side1;
+            document.getElementById('manualSide2NameLabel').innerText = currentSelectedMatch.side2;
 
-            const base1 = parseFloat(currentSelectedMatch.odds1) || 1;
-            const base2 = parseFloat(currentSelectedMatch.odds2) || 1;
-            const inv1 = 1 / base1;
-            const inv2 = 1 / base2;
-            const total = inv1 + inv2;
-            const autoStake1 = 4500 * (inv1 / total);
-            const autoStake2 = 4500 * (inv2 / total);
+            // Recommended distribution (one side per site as pre-filled suggestion)
+            const o1 = parseFloat(currentSelectedMatch.odds1) || 1;
+            const o2 = parseFloat(currentSelectedMatch.odds2) || 1;
+            const inv1 = 1 / o1;
+            const inv2 = 1 / o2;
+            const totalInv = inv1 + inv2;
+            const recTotal = parseFloat(document.getElementById('targetInput')?.value || 4500);
+            const rec1 = recTotal * (inv1 / totalInv);
+            const rec2 = recTotal * (inv2 / totalInv);
 
-            document.getElementById('manualStake1').value = autoStake1.toFixed(2);
-            document.getElementById('manualStake2').value = autoStake2.toFixed(2);
+            document.getElementById('manualStake1_primary').value = rec1.toFixed(2);
+            document.getElementById('manualStake1_secondary').value = '0.00';
+            document.getElementById('manualStake2_primary').value = rec2.toFixed(2);
+            document.getElementById('manualStake2_secondary').value = '0.00';
+
+            // default types to amount
+            document.getElementById('manualStake1_primary_type').value = 'amount';
+            document.getElementById('manualStake1_secondary_type').value = 'amount';
+            document.getElementById('manualStake2_primary_type').value = 'amount';
+            document.getElementById('manualStake2_secondary_type').value = 'amount';
+
             calculateStakes();
         }
 
@@ -427,101 +431,123 @@
             calculateStakes();
         }
 
-        function quickSetStake(siteIndex, factor) {
+        function applyRecommendation(siteIndex) {
             if (!currentSelectedMatch) return;
             const o1 = parseFloat(currentSelectedMatch.odds1) || 1;
             const o2 = parseFloat(currentSelectedMatch.odds2) || 1;
             const inv1 = 1 / o1;
             const inv2 = 1 / o2;
             const total = inv1 + inv2;
-            const totalStake = siteIndex === 1 ? (4500 * (inv1 / total)) : (4500 * (inv2 / total));
-            const value = totalStake * factor;
-            const el = siteIndex === 1 ? document.getElementById('manualStake1') : document.getElementById('manualStake2');
-            if (el) el.value = value.toFixed(2);
+            const totalAmt = parseFloat(document.getElementById('targetInput')?.value || 4500);
+            const rec1 = totalAmt * (inv1 / total);
+            const rec2 = totalAmt * (inv2 / total);
+            if (siteIndex === 1) {
+                document.getElementById('manualStake1_primary').value = rec1.toFixed(2);
+                document.getElementById('manualStake1_secondary').value = '0.00';
+                document.getElementById('manualStake1_primary_type').value = 'amount';
+                document.getElementById('manualStake1_secondary_type').value = 'amount';
+            } else {
+                document.getElementById('manualStake2_primary').value = rec2.toFixed(2);
+                document.getElementById('manualStake2_secondary').value = '0.00';
+                document.getElementById('manualStake2_primary_type').value = 'amount';
+                document.getElementById('manualStake2_secondary_type').value = 'amount';
+            }
             calculateStakes();
+        }
+
+        function copyBetDetails(siteIndex) {
+            if (!currentSelectedMatch) return;
+            // Convert profit inputs to amounts when needed for display
+            const s1p = valueFromInput('manualStake1_primary', 'manualStake1_primary_type', currentSelectedMatch.odds1);
+            const s1s = valueFromInput('manualStake1_secondary', 'manualStake1_secondary_type', currentSelectedMatch.odds1);
+            const s2p = valueFromInput('manualStake2_primary', 'manualStake2_primary_type', currentSelectedMatch.odds2);
+            const s2s = valueFromInput('manualStake2_secondary', 'manualStake2_secondary_type', currentSelectedMatch.odds2);
+
+            const lines = [];
+            lines.push(`คู่: ${currentSelectedMatch.teams}`);
+            lines.push(`ตลาด: ${currentSelectedMatch.market}`);
+            lines.push('---');
+            lines.push(`${currentSelectedMatch.book1} - ${currentSelectedMatch.side1}: ${formatTHB(s1p)}`);
+            if (s1s > 0) lines.push(`${currentSelectedMatch.book1} - ${currentSelectedMatch.side2}: ${formatTHB(s1s)}`);
+            lines.push(`${currentSelectedMatch.book2} - ${currentSelectedMatch.side2}: ${formatTHB(s2p)}`);
+            if (s2s > 0) lines.push(`${currentSelectedMatch.book2} - ${currentSelectedMatch.side1}: ${formatTHB(s2s)}`);
+            lines.push('---');
+            lines.push('คำแนะนำ: เปิดลิงก์พันธมิตรที่เกี่ยวข้อง และวางจำนวนเงินที่ระบุลงในหน้าตั๋วเดิมพันของเว็บนั้น');
+            lines.push('หมายเหตุ: หากตลาดเป็นแบบคืนเงินเมื่อเสมอ (Draw-no-bet) ผู้เล่นจะได้รับเงินคืนเมื่อเสมอ');
+            const text = lines.join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                alert('คัดลอกรายละเอียดการเดิมพันเรียบร้อยแล้ว — วางในหน้าเดิมพันของเว็บ');
+            }).catch(() => {
+                alert('ไม่สามารถคัดลอกอัตโนมัติได้ — โปรดคัดลอกด้วยตนเอง:\n' + text);
+            });
+        }
+
+        function valueFromInput(amountId, typeId, odds) {
+            const raw = parseFloat(document.getElementById(amountId).value) || 0;
+            const t = document.getElementById(typeId).value || 'amount';
+            if (t === 'amount') return raw;
+            // profit -> convert to stake amount: profit = stake * (odds - 1)
+            const stake = (odds > 1) ? (raw / (odds - 1)) : 0;
+            return stake;
         }
 
         function calculateStakes() {
             if (!currentSelectedMatch) return;
-            const o1 = parseFloat(currentSelectedMatch.odds1);
-            const o2 = parseFloat(currentSelectedMatch.odds2);
+            // Convert inputs (profit -> amount) before summing
+            const s1p = valueFromInput('manualStake1_primary', 'manualStake1_primary_type', currentSelectedMatch.odds1);
+            const s1s = valueFromInput('manualStake1_secondary', 'manualStake1_secondary_type', currentSelectedMatch.odds1);
+            const s2p = valueFromInput('manualStake2_primary', 'manualStake2_primary_type', currentSelectedMatch.odds2);
+            const s2s = valueFromInput('manualStake2_secondary', 'manualStake2_secondary_type', currentSelectedMatch.odds2);
 
-            let stake1 = 0;
-            let stake2 = 0;
+            const totalInv = s1p + s1s + s2p + s2s;
+            const o1 = parseFloat(currentSelectedMatch.odds1) || 0;
+            const o2 = parseFloat(currentSelectedMatch.odds2) || 0;
 
-            if (manualMode) {
-                stake1 = parseFloat(document.getElementById('manualStake1').value) || 0;
-                stake2 = parseFloat(document.getElementById('manualStake2').value) || 0;
-            } else {
-                const val = parseFloat(document.getElementById('targetInput').value) || 0;
-                const inv1 = 1 / o1;
-                const inv2 = 1 / o2;
-                const total = inv1 + inv2;
-                stake1 = val * (inv1 / total);
-                stake2 = val * (inv2 / total);
-            }
+            // If side1 wins: returns from bets placed on side1 across both sites
+            // side1 bets: s1p (site1 primary) + s2s (site2 secondary)
+            const retIfSide1 = (s1p * o1) + (s2s * o2);
+            // If side2 wins: returns from bets placed on side2 across both sites
+            // side2 bets: s2p (site2 primary) + s1s (site1 secondary)
+            const retIfSide2 = (s2p * o2) + (s1s * o1);
 
-            const totalInv = stake1 + stake2;
-            const retIf1 = stake1 * o1;
-            const retIf2 = stake2 * o2;
-            const profitIf1 = retIf1 - totalInv;
-            const profitIf2 = retIf2 - totalInv;
+            const profitIf1 = retIfSide1 - totalInv;
+            const profitIf2 = retIfSide2 - totalInv;
 
             document.getElementById('sumTotalInv').innerText = formatTHB(totalInv);
-            document.getElementById('returnIf1').innerText = formatTHB(retIf1);
-            document.getElementById('returnIf2').innerText = formatTHB(retIf2);
+            document.getElementById('returnIf1').innerText = formatTHB(retIfSide1);
+            document.getElementById('returnIf2').innerText = formatTHB(retIfSide2);
             document.getElementById('profitIf1').innerText = `${profitIf1 >= 0 ? '+' : '-'}${formatTHB(Math.abs(profitIf1))}`;
             document.getElementById('profitIf2').innerText = `${profitIf2 >= 0 ? '+' : '-'}${formatTHB(Math.abs(profitIf2))}`;
         }
 
         function placeBetExternal(siteIndex) {
             if (!currentSelectedMatch) return;
-            const baseUrl = siteIndex === 1 ? currentSelectedMatch.link1 : currentSelectedMatch.link2;
-            window.open(baseUrl, '_blank', 'noopener,noreferrer');
-        }
-
-        function openDepositModal() {
-            document.getElementById('depositModal').classList.remove('hidden');
-            switchTab('card');
-        }
-        function closeDepositModal() {
-            document.getElementById('depositModal').classList.add('hidden');
-        }
-
-        function switchTab(tab) {
-            document.getElementById('contentCard').classList.add('hidden');
-            document.getElementById('contentOther').classList.add('hidden');
-            document.getElementById('tabCard').className = 'py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition';
-            document.getElementById('tabOther').className = 'py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition';
-
-            if (tab === 'card') {
-                document.getElementById('contentCard').classList.remove('hidden');
-                document.getElementById('tabCard').className = 'py-2 text-xs font-medium rounded bg-emerald-600 text-white transition';
-            } else {
-                document.getElementById('contentOther').classList.remove('hidden');
-                document.getElementById('tabOther').className = 'py-2 text-xs font-medium rounded bg-emerald-600 text-white transition';
-            }
+            copyBetDetails(siteIndex);
+            const urlBase = siteIndex === 1 ? currentSelectedMatch.link1 : currentSelectedMatch.link2;
+            // Many bookmakers do not support pre-filling bet amounts via affiliate/ref links.
+            // We append the amount as a convenience parameter (some partners ignore it) and open the ref link.
+            // We add amount param for the primary stake if set as amount; else leave it.
+            const primaryAmount = siteIndex === 1 ? valueFromInput('manualStake1_primary', 'manualStake1_primary_type', currentSelectedMatch.odds1) : valueFromInput('manualStake2_primary', 'manualStake2_primary_type', currentSelectedMatch.odds2);
+            let finalUrl = urlBase + (urlBase.includes('?') ? '&' : '?') + 'source=siamarb';
+            if (primaryAmount > 0) finalUrl += `&amount=${encodeURIComponent(primaryAmount.toFixed(2))}`;
+            window.open(finalUrl, '_blank', 'noopener,noreferrer');
         }
 
         async function simulateStripeCheckout() {
             try {
-                const res = await fetch('/api/stripe-create-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ plan: 'vip', amount: 499 })
-                });
+                const res = await fetch('/api/stripe-create-session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'vip', amount: 499 }) });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.error || 'Stripe checkout failed');
-                if (data.url) {
+                if (res.ok && data.url) {
                     window.location.href = data.url;
                     return;
                 }
-                alert('จำลองการชำระเงินสำเร็จ! สำหรับการเชื่อมต่อจริง ให้ใส่ STRIPE_SECRET_KEY ใน Vercel');
-            } catch (error) {
-                alert('จำลองการชำระเงินสำเร็จ! สำหรับการเชื่อมต่อจริง ให้ใส่ STRIPE_SECRET_KEY ใน Vercel');
+            } catch (err) {
+                // ignore, show fallback
             }
+            alert('จำลองการชำระเงินสำเร็จ! สำหรับการเชื่อมต่อจริง ให้ใส่ STRIPE_SECRET_KEY ใน Vercel');
         }
 
+        // Initial load
         fetchLiveOdds();
         setInterval(fetchLiveOdds, 20000);
         renderMatches('all');
