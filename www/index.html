@@ -163,7 +163,7 @@
                                 <span id="profitIf1" class="text-emerald-400">+฿110.25</span>
                             </div>
                             <div class="flex justify-between">
-                                <span>กำไร / ขาดทุน หากฝั่งเว็บที่ 2 ชนะ:</span>
+                                <span>กำไร / ขาดทุน หากฝั่งเ��็บที่ 2 ชนะ:</span>
                                 <span id="profitIf2" class="text-emerald-400">+฿110.25</span>
                             </div>
                         </div>
@@ -492,9 +492,105 @@
             }
         }
 
-        // Real-time simulation: periodically adjust odds and update UI.
+        // WebSocket client: connect to a real feed if REALTIME_WS_URL is defined on window
+        function startWebSocketFeed({ url, protocols = null, authToken = null, reconnectInterval = 1000, maxReconnectInterval = 30000 }) {
+            let ws = null;
+            let shouldReconnect = true;
+            let reconnectDelay = reconnectInterval;
+
+            function connect() {
+                const options = {};
+                // If authentication via query param is desired, you can append it to the url here
+                let connectUrl = url;
+                if (authToken) {
+                    // prefer Authorization header if your server supports subprotocols or header-based auth via server side
+                    // many browsers don't allow setting custom headers in WebSocket constructor, so using query param or initial auth message is common
+                    connectUrl = url.includes('?') ? `${url}&auth=${encodeURIComponent(authToken)}` : `${url}?auth=${encodeURIComponent(authToken)}`;
+                }
+
+                try {
+                    ws = protocols ? new WebSocket(connectUrl, protocols) : new WebSocket(connectUrl);
+                } catch (e) {
+                    console.error('WebSocket connect error', e);
+                    scheduleReconnect();
+                    return;
+                }
+
+                ws.onopen = () => {
+                    console.info('Realtime WS connected');
+                    reconnectDelay = reconnectInterval; // reset backoff
+                    // Optionally send a subscription message if your feed requires it
+                    // e.g. ws.send(JSON.stringify({type: 'subscribe', channels: ['odds']}));
+                };
+
+                ws.onmessage = (evt) => {
+                    try {
+                        const data = JSON.parse(evt.data);
+                        // expected format: { id, odds1, odds2, ts }
+                        if (!data || !data.id) return;
+                        const m = matchesData.find(x => x.id === data.id);
+                        if (!m) return;
+                        if (data.odds1 != null) m.odds1 = parseFloat(data.odds1);
+                        if (data.odds2 != null) m.odds2 = parseFloat(data.odds2);
+                        m.lastUpdated = data.ts ? +data.ts : Date.now();
+                        m.roi = computeRoiPercent(m.odds1, m.odds2);
+
+                        // update card DOM if visible
+                        const card = document.querySelector(`#matchesContainer [data-match-id="${m.id}"]`);
+                        if (card) {
+                            const odds1El = card.querySelector('.odds1');
+                            const odds2El = card.querySelector('.odds2');
+                            const roiEl = card.querySelector('.text-lg.font-extrabold');
+                            const updatedEl = card.querySelector('.last-updated');
+                            if (odds1El) odds1El.innerText = `Odds: ${m.odds1.toFixed(2)}`;
+                            if (odds2El) odds2El.innerText = `Odds: ${m.odds2.toFixed(2)}`;
+                            if (roiEl) roiEl.innerText = `+${m.roi.toFixed(2)}%`;
+                            if (updatedEl) updatedEl.innerText = formatTime(m.lastUpdated);
+                        }
+
+                        // if selected, refresh calculator (without overwriting manual inputs)
+                        if (currentSelectedMatchId === m.id && !manualMode) {
+                            currentSelectedMatch = m;
+                            document.getElementById('manualOdds1').innerText = `Odds: ${m.odds1.toFixed(2)}`;
+                            document.getElementById('manualOdds2').innerText = `Odds: ${m.odds2.toFixed(2)}`;
+                            calculateStakes();
+                        }
+                    } catch (err) {
+                        console.error('Failed to parse WS message', err);
+                    }
+                };
+
+                ws.onclose = (ev) => {
+                    console.warn('Realtime WS closed', ev.code, ev.reason);
+                    if (shouldReconnect) scheduleReconnect();
+                };
+
+                ws.onerror = (err) => {
+                    console.error('Realtime WS error', err);
+                    // errors also lead to close -> reconnect
+                };
+            }
+
+            function scheduleReconnect() {
+                setTimeout(() => {
+                    reconnectDelay = Math.min(maxReconnectInterval, reconnectDelay * 1.5);
+                    connect();
+                }, reconnectDelay + Math.floor(Math.random() * 500)); // jitter
+            }
+
+            connect();
+
+            return {
+                stop() {
+                    shouldReconnect = false;
+                    if (ws) ws.close();
+                }
+            };
+        }
+
+        // Real-time simulation (fallback) : periodically adjust odds and update UI.
         function startRealtimeSimulation(intervalMs = 2000) {
-            setInterval(() => {
+            const intervalId = setInterval(() => {
                 // Slight random walk on each match's odds
                 matchesData.forEach(match => {
                     const change1 = (Math.random() - 0.5) * 0.06; // +/-0.03 avg
@@ -528,12 +624,17 @@
                     // update currentSelectedMatch reference
                     currentSelectedMatch = matchesData.find(m => m.id === currentSelectedMatchId);
                     // refresh calculator odds and stakes without moving focus
-                    document.getElementById('manualOdds1').innerText = `Odds: ${currentSelectedMatch.odds1.toFixed(02)}`;
-                    document.getElementById('manualOdds2').innerText = `Odds: ${currentSelectedMatch.odds2.toFixed(02)}`;
+                    document.getElementById('manualOdds1').innerText = `Odds: ${currentSelectedMatch.odds1.toFixed(2)}`;
+                    document.getElementById('manualOdds2').innerText = `Odds: ${currentSelectedMatch.odds2.toFixed(2)}`;
                     calculateStakes();
                 }
 
             }, intervalMs);
+
+            // return a stopper so we can clear it if needed
+            return {
+                stop() { clearInterval(intervalId); }
+            };
         }
 
         // Deposit modal / Stripe simulation
@@ -568,7 +669,20 @@
 
         // initialize
         renderMatches('all');
-        startRealtimeSimulation(2000); // update every 2s
+
+        // If a real WebSocket URL is provided via window.REALTIME_WS_URL, use it; otherwise fall back to simulation.
+        // To enable WS in production, set:
+        // window.REALTIME_WS_CONFIG = { url: 'wss://example.com/odds', authToken: 'YOUR_TOKEN' }
+        let realtimeController = null;
+        if (window.REALTIME_WS_CONFIG && window.REALTIME_WS_CONFIG.url) {
+            realtimeController = startWebSocketFeed(window.REALTIME_WS_CONFIG);
+        } else {
+            // fallback simulation for demo / local testing
+            realtimeController = startRealtimeSimulation(2000); // update every 2s
+        }
+
+        // Optional: expose controller for debugging in console
+        window.__siamarb_realtime = { controller: realtimeController };
     </script>
 </body>
 </html>
