@@ -62,7 +62,7 @@ move yhe demo<!DOCTYPE html>
             <div class="flex items-center gap-3">
                 <div id="liveTicker" class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[11px] text-emerald-300">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 live-pulse"></span>
-                    LIVE FEED: <span id="liveStatusText">รอข้อมู��</span>
+                    LIVE FEED: <span id="liveStatusText">รอข้อมูล</span>
                 </div>
                 <button onclick="openDepositModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium text-sm transition shadow-lg shadow-emerald-900/40">
                     💳 เติมเงิน / สมัครแพ็กเกจ VIP (499 THB)
@@ -91,24 +91,24 @@ move yhe demo<!DOCTYPE html>
             <!-- Profile / Member summary -->
             <div id="memberProfile" class="bg-slate-950 p-3 rounded-lg border border-slate-800">
                 <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center font-bold text-slate-900">MK</div>
+                    <div class="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center font-bold text-slate-900">TG</div>
                     <div>
-                        <div class="font-bold text-white">สมาชิก: สมชาย</div>
-                        <div class="text-xs text-slate-400">สมาชิก VIP • แพลตฟอร์มตัวอย่าง</div>
+                        <div class="font-bold text-white">รวมรายได้ทั้งหมด</div>
+                        <div class="text-xs text-slate-400">ข้อมูลจากสมาชิกใน Telegram group</div>
                     </div>
                 </div>
 
                 <div class="mt-3 grid grid-cols-2 gap-3 text-xs text-slate-300">
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <div class="text-xs">Total profit per member to date*</div>
-                        <div id="totalProfitToDate" class="text-emerald-400 font-bold text-lg">฿128,450.75</div>
+                        <div class="text-xs">Total revenue to date</div>
+                        <div id="totalRevenue" class="text-emerald-400 font-bold text-lg">฿1,245,300.50</div>
                     </div>
                     <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
-                        <div class="text-xs">Total profit per month per member*</div>
-                        <div id="totalProfitPerMonth" class="text-amber-400 font-bold text-lg">฿9,875.06</div>
+                        <div class="text-xs">Profit from members (Telegram group)</div>
+                        <div id="profitFromTelegram" class="text-amber-400 font-bold text-lg">฿128,450.75</div>
                     </div>
                 </div>
-                <div class="text-xs text-slate-500 mt-2">* ตัวเลขจำลองเพื่อแสดงตัวอย่างบนโปรไฟล์ — ไม่ใช่ข้อมูลจริง</div>
+                <div class="text-xs text-slate-500 mt-2">* ตัวเลขจำลองเพื่อแสดงตัวอย่าง — เปลี่ยนเป็นข้อมูลจริงจาก backend เมื่อพร้อม</div>
             </div>
 
             <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
@@ -131,89 +131,60 @@ move yhe demo<!DOCTYPE html>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
-                    <button onclick="setCalcMode('investment')" id="modeInvBtn" class="py-1.5 text-xs font-medium rounded bg-emerald-600 text-white transition">กำหนดเงินทุน</button>
-                    <button onclick="setCalcMode('profit')" id="modeProfitBtn" class="py-1.5 text-xs font-medium rounded text-slate-400 hover:text-white transition">กำหนดกำไร</button>
-                </div>
-
-                <div class="flex items-center gap-3 text-xs">
-                    <label class="flex items-center gap-2"><input type="radio" name="calcModeAutoManual" id="autoCalc" checked onchange="setCalcManual(false)"> อัตโนมัติ</label>
-                    <label class="flex items-center gap-2"><input type="radio" name="calcModeAutoManual" id="manualCalc" onchange="setCalcManual(true)"> กำหนดเอง</label>
-                </div>
-
-                <div id="autoInputBlock" class="space-y-1.5">
-                    <label id="inputLabel" class="text-xs font-medium text-slate-300">ระบุเงินเดิมพันรวมทั้งหมด (บาท):</label>
-                    <div class="relative">
-                        <input type="number" id="targetInput" value="4500" min="0" step="1" oninput="calculateStakes()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
-                        <span id="inputUnit" class="absolute right-3 top-2 text-xs text-slate-400">THB</span>
+                <div class="text-xs text-slate-300">แนะนำยอดเดิมพันแยกตามเว็บ (ปรับได้):</div>
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                        <div class="flex justify-between items-center text-xs">
+                            <div><span class="font-bold text-amber-400" id="recBook1">1xLite</span> • <span id="recSide1">Over 2.5</span></div>
+                            <div id="recOdds1" class="text-white font-mono">1.95</div>
+                        </div>
+                        <div class="mt-2 flex gap-2 items-center">
+                            <label class="text-xs text-slate-400 w-28">แนะนำยอด (฿):</label>
+                            <input type="number" id="manualStake1" min="0" step="0.01" value="1000" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStakes()">
+                        </div>
                     </div>
-                </div>
 
-                <div id="manualInputBlock" class="space-y-3 hidden">
-                    <div class="text-xs font-bold text-slate-300">กำหนดสัดส่วนการวางเงินแยกตามเว็บ:</div>
-                    <div class="grid grid-cols-1 gap-3">
-                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-amber-400">เว็บที่ 1: <span id="manualBook1">1xLite</span></span>
-                                <span id="manualOdds1" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 1.95</span>
-                            </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">วางบนทีม:</label>
-                                <input type="text" id="manualSide1Name" value="Over 2.5" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full">
-                            </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">จำนวนเงิน (฿):</label>
-                                <input type="number" min="0" step="0.01" id="manualStake1" value="2307.69" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStake()">
-                            </div>
-                            <div class="mt-3">
-                                <button onclick="placeBetExternal(1)" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพัน</button>
-                            </div>
+                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                        <div class="flex justify-between items-center text-xs">
+                            <div><span class="font-bold text-cyan-400" id="recBook2">Pinnacle</span> • <span id="recSide2">Under 2.5</span></div>
+                            <div id="recOdds2" class="text-white font-mono">2.08</div>
                         </div>
+                        <div class="mt-2 flex gap-2 items-center">
+                            <label class="text-xs text-slate-400 w-28">แนะนำยอด (฿):</label>
+                            <input type="number" id="manualStake2" min="0" step="0.01" value="1061.54" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStakes()">
+                        </div>
+                    </div>
 
-                        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="font-bold text-cyan-400">เว็บที่ 2: <span id="manualBook2">Pinnacle</span></span>
-                                <span id="manualOdds2" class="bg-slate-900 px-2 py-0.5 rounded text-white font-mono">Odds: 2.08</span>
-                            </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">วางบนทีม:</label>
-                                <input type="text" id="manualSide2Name" value="Under 2.5" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full">
-                            </div>
-                            <div class="mt-2 flex gap-2 items-center">
-                                <label class="text-xs text-slate-400 w-28">จำนวนเงิน (฿):</label>
-                                <input type="number" min="0" step="0.01" id="manualStake2" value="2192.31" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStake()">
-                            </div>
-                            <div class="mt-3">
-                                <button onclick="placeBetExternal(2)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพัน</button>
-                            </div>
-                        </div>
+                    <div class="flex gap-2">
+                        <button onclick="recommendStakes()" class="px-3 py-2 bg-emerald-600 text-white rounded text-sm">แนะนำยอดอัตโนมัติ</button>
+                        <button onclick="applyStakesPreset()" class="px-3 py-2 bg-slate-700 text-white rounded text-sm">ใช้ค่าเริ่มต้น</button>
                     </div>
                 </div>
 
                 <div class="space-y-3 pt-2 border-t border-slate-800">
-                    <div class="text-xs font-bold text-slate-300">สรุปการวางเงินและผลลัพธ์ที่คาดการณ์ได้:</div>
+                    <div class="text-xs font-bold text-slate-300">สรุปการวางเงินและผลลัพธ์ที่คาดการณ์ได้ (แยกเว็บ):</div>
 
                     <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-2 text-xs">
                         <div class="flex justify-between text-slate-400">
                             <span>เงินลงทุนรวมทั้งหมด:</span>
-                            <span id="sumTotalInv" class="font-bold text-white">฿4,500.00</span>
+                            <span id="sumTotalInv" class="font-bold text-white">฿2,061.54</span>
                         </div>
                         <div class="flex justify-between text-slate-400">
-                            <span>เมื่อผลออก ฝั่งเว���บที่ 1 ชนะ จะได้รับ:</span>
-                            <span id="returnIf1" class="font-bold text-emerald-400">฿4,610.25</span>
+                            <span>เมื่อผลออก ฝั่งเว็บที่ 1 ชนะ จะได้รับ:</span>
+                            <span id="returnIf1" class="font-bold text-emerald-400">฿1,950.00</span>
                         </div>
                         <div class="flex justify-between text-slate-400">
-                            <span>เมื่อผลออก ฝั่งเว็บที่ 2 ชนะ จะได้รั��:</span>
-                            <span id="returnIf2" class="font-bold text-emerald-400">฿4,610.25</span>
+                            <span>เมื่อผลออก ฝั่งเว็บที่ 2 ชนะ จะได้รับ:</span>
+                            <span id="returnIf2" class="font-bold text-emerald-400">฿2,208.00</span>
                         </div>
                         <div class="pt-1 border-t border-emerald-500/20 text-xs font-bold text-emerald-300">
                             <div class="flex justify-between">
                                 <span>กำไร / ขาดทุน หากฝั่งเว็บที่ 1 ชนะ:</span>
-                                <span id="profitIf1" class="text-emerald-400">+฿110.25</span>
+                                <span id="profitIf1" class="text-emerald-400">+฿-111.54</span>
                             </div>
                             <div class="flex justify-between">
                                 <span>กำไร / ขาดทุน หากฝั่งเว็บที่ 2 ชนะ:</span>
-                                <span id="profitIf2" class="text-emerald-400">+฿110.25</span>
+                                <span id="profitIf2" class="text-emerald-400">+฿146.46</span>
                             </div>
                         </div>
                     </div>
@@ -226,19 +197,19 @@ move yhe demo<!DOCTYPE html>
                 <button onclick="closeDepositModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
 
                 <div class="border-b border-slate-800 pb-3">
-                    <h3 class="font-bold text-lg text-white">💳 ช่องทางชำระเงินและเติมเงินอ��ตโนมัติ</h3>
-                    <p class="text-xs text-slace-400">ซื้อแพ็กเกจ VIP ลดพิเศษ: <span class="text-emerald-400 font-bold">499 THB</span> — ชำระด้วย[...]</p>
+                    <h3 class="font-bold text-lg text-white">💳 ช่องทางชำระเงินและเติมเงินอัตโนมัติ</h3>
+                    <p class="text-xs text-slate-400">ซื้อแพ็กเกจ VIP ลดพิเศษ: <span class="text-emerald-400 font-bold">499 THB</span> — ชำระด้วย[...]</p>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
                     <button onclick="switchTab('card')" id="tabCard" class="py-2 text-xs font-medium rounded bg-emerald-600 text-white transition">ชำระด้วยบัตร (Stripe)</button>
-                    <button onclick="switchTab('other')" id="tabOther" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">ช่องทางอื่น</button>
+                    <button onclick="switchTab('other')" id="tabOther" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">��่องทางอื่น</button>
                 </div>
 
                 <div id="contentCard" class="space-y-4">
                     <div class="space-y-3">
                         <div class="text-xs text-slate-300">ซื้อแพ็กเกจ VIP ราคาพิเศษ ฿499 — ชำระผ่าน Stripe</div>
-                        <div class="text-xs text-slate-400">หมายเหตุ: ปัจจุบันระบบตัวอย่างจะจำลองการไปยังหน้าชำระเงิ���</div>
+                        <div class="text-xs text-slate-400">หมายเหตุ: ปัจจุบันระบบตัวอย่างจะจำลองการไปยังหน้าชำระเงิน</div>
                     </div>
                     <button onclick="simulateStripeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition">
                         ✅ ดำเนินการชำระเงินผ่าน Stripe
@@ -270,8 +241,8 @@ move yhe demo<!DOCTYPE html>
                 selectedMatchId: null,
                 leagueFilter: 'all',
                 calcMode: 'investment',
-                autoManual: false,
-                liveStatus: 'รอข้อมูล',
+                autoManual: true, // use per-site stakes by default
+                liveStatus: 'รอข้อมู���',
                 socket: null,
                 incomingCounter: 0
             };
@@ -381,6 +352,24 @@ move yhe demo<!DOCTYPE html>
                 state.liveStatus = text;
             }
 
+            function recommendStakes(base = 1000) {
+                const match = state.matches.find(item => item.id === state.selectedMatchId);
+                if (!match) return;
+                // Choose site1 stake as base, compute site2 to equalize gross returns: stake1*odds1 ~= stake2*odds2
+                const stake1 = Number(base);
+                const stake2 = Number(((stake1 * match.odds1) / match.odds2).toFixed(2));
+                document.getElementById('manualStake1').value = stake1.toFixed(2);
+                document.getElementById('manualStake2').value = stake2.toFixed(2);
+                calculateStakes();
+            }
+
+            function applyStakesPreset() {
+                // simple preset: small default values
+                document.getElementById('manualStake1').value = (1000).toFixed(2);
+                document.getElementById('manualStake2').value = (1000).toFixed(2);
+                calculateStakes();
+            }
+
             function selectMatch(matchId) {
                 state.selectedMatchId = matchId;
                 const match = state.matches.find(item => item.id === matchId);
@@ -397,14 +386,17 @@ move yhe demo<!DOCTYPE html>
                 document.getElementById('calcMarket').textContent = match.market;
                 document.getElementById('calcRoiBadge').textContent = `+${match.roi.toFixed(2)}%`;
 
-                document.getElementById('manualBook1').textContent = match.site1;
-                document.getElementById('manualBook2').textContent = match.site2;
-                document.getElementById('manualOdds1').textContent = `Odds: ${match.odds1.toFixed(2)}`;
-                document.getElementById('manualOdds2').textContent = `Odds: ${match.odds2.toFixed(2)}`;
-                document.getElementById('manualSide1Name').value = match.side1;
-                document.getElementById('manualSide2Name').value = match.side2;
-                document.getElementById('manualStake1').value = (4500 / (match.odds1 + match.odds2)).toFixed(2);
-                document.getElementById('manualStake2').value = (4500 / (match.odds1 + match.odds2)).toFixed(2);
+                document.getElementById('recBook1').textContent = match.site1;
+                document.getElementById('recBook2').textContent = match.site2;
+                document.getElementById('recSide1').textContent = match.side1;
+                document.getElementById('recSide2').textContent = match.side2;
+                document.getElementById('recOdds1').textContent = match.odds1.toFixed(2);
+                document.getElementById('recOdds2').textContent = match.odds2.toFixed(2);
+
+                // set default recommended stakes to equalized returns
+                const defaultBase = 1000;
+                document.getElementById('manualStake1').value = defaultBase.toFixed(2);
+                document.getElementById('manualStake2').value = (((defaultBase * match.odds1) / match.odds2)).toFixed(2);
 
                 calculateStakes();
                 renderMatches();
@@ -474,26 +466,14 @@ move yhe demo<!DOCTYPE html>
 
             function setCalcMode(mode) {
                 state.calcMode = mode;
-                const inv = document.getElementById('modeInvBtn');
-                const prof = document.getElementById('modeProfitBtn');
-                if (mode === 'investment') {
-                    inv.classList.add('bg-emerald-600', 'text-white');
-                    inv.classList.remove('text-slate-400');
-                    prof.classList.remove('bg-emerald-600', 'text-white');
-                    prof.classList.add('text-slate-400');
-                } else {
-                    prof.classList.add('bg-emerald-600', 'text-white');
-                    prof.classList.remove('text-slate-400');
-                    inv.classList.remove('bg-emerald-600', 'text-white');
-                    inv.classList.add('text-slate-400');
-                }
                 calculateStakes();
             }
 
             function setCalcManual(enabled) {
                 state.autoManual = enabled;
-                document.getElementById('autoInputBlock').classList.toggle('hidden', enabled);
-                document.getElementById('manualInputBlock').classList.toggle('hidden', !enabled);
+                // This UI uses manualStake inputs directly
+                document.getElementById('autoInputBlock') && document.getElementById('autoInputBlock').classList.toggle('hidden', true);
+                document.getElementById('manualInputBlock') && document.getElementById('manualInputBlock').classList.toggle('hidden', true);
                 calculateStakes();
             }
 
@@ -501,15 +481,12 @@ move yhe demo<!DOCTYPE html>
                 const match = state.matches.find(item => item.id === state.selectedMatchId);
                 if (!match) return;
 
-                const total = Number(document.getElementById('targetInput').value || 0);
-                const odds1 = Number(match.odds1 || 0);
-                const odds2 = Number(match.odds2 || 0);
-                const stake1 = state.autoManual ? Number(document.getElementById('manualStake1').value || 0) : total * (odds2 / (odds1 + odds2));
-                const stake2 = state.autoManual ? Number(document.getElementById('manualStake2').value || 0) : total * (odds1 / (odds1 + odds2));
+                const stake1 = Number(document.getElementById('manualStake1').value || 0);
+                const stake2 = Number(document.getElementById('manualStake2').value || 0);
 
                 const totalInv = stake1 + stake2;
-                const return1 = stake1 * odds1;
-                const return2 = stake2 * odds2;
+                const return1 = stake1 * match.odds1;
+                const return2 = stake2 * match.odds2;
                 const profit1 = return1 - totalInv;
                 const profit2 = return2 - totalInv;
 
@@ -519,23 +496,12 @@ move yhe demo<!DOCTYPE html>
                 document.getElementById('profitIf1').textContent = `${profit1 >= 0 ? '+' : ''}฿${formatMoney(profit1)}`;
                 document.getElementById('profitIf2').textContent = `${profit2 >= 0 ? '+' : ''}฿${formatMoney(profit2)}`;
 
-                document.getElementById('manualStake1').value = state.autoManual ? document.getElementById('manualStake1').value : stake1.toFixed(2);
-                document.getElementById('manualStake2').value = state.autoManual ? document.getElementById('manualStake2').value : stake2.toFixed(2);
+                document.getElementById('manualStake1').value = stake1.toFixed(2);
+                document.getElementById('manualStake2').value = stake2.toFixed(2);
 
                 const totalRoi = Math.min(((return1 - totalInv) / totalInv) * 100, ((return2 - totalInv) / totalInv) * 100) || 0;
                 const badgeText = isFinite(totalRoi) ? `+${Math.max(0, totalRoi).toFixed(2)}%` : '+0.00%';
                 document.getElementById('calcRoiBadge').textContent = badgeText;
-            }
-
-            function filterLeague(league) {
-                state.leagueFilter = league;
-                renderMatches();
-                if (state.selectedMatchId) {
-                    const existing = state.matches.find(item => item.id === state.selectedMatchId);
-                    if (existing && getVisibleMatches().length && !getVisibleMatches().some(item => item.id === state.selectedMatchId)) {
-                        selectMatch(getVisibleMatches()[0].id);
-                    }
-                }
             }
 
             function openDepositModal() {
@@ -719,20 +685,19 @@ move yhe demo<!DOCTYPE html>
             // populate the sample profile numbers (user asked to "create numbers that look good")
             function populateSampleProfits() {
                 // These are example values; replace with real aggregated data in production
-                const total = 128450.75;
-                const monthly = 9875.06;
-                const elTotal = document.getElementById('totalProfitToDate');
-                const elMonthly = document.getElementById('totalProfitPerMonth');
-                if (elTotal) elTotal.textContent = `฿${formatMoney(total)}`;
-                if (elMonthly) elMonthly.textContent = `฿${formatMoney(monthly)}`;
+                const revenue = 1245300.5;
+                const tgProfit = 128450.75;
+                const elRev = document.getElementById('totalRevenue');
+                const elTg = document.getElementById('profitFromTelegram');
+                if (elRev) elRev.textContent = `฿${formatMoney(revenue)}`;
+                if (elTg) elTg.textContent = `฿${formatMoney(tgProfit)}`;
             }
 
             document.addEventListener('DOMContentLoaded', () => {
                 state.matches = buildMatches();
                 renderMatches();
                 selectMatch(state.matches[0].id);
-                setCalcMode('investment');
-                setCalcManual(false);
+                setCalcManual(true);
                 calculateStakes();
                 startDemoRealtimeFeed();
                 connectRealtimeFeed();
