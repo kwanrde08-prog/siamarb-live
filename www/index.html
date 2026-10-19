@@ -159,6 +159,12 @@ move yhe demo<!DOCTYPE html>
                         <button onclick="recommendStakes()" class="px-3 py-2 bg-emerald-600 text-white rounded text-sm">แนะนำยอดอัตโนมัติ</button>
                         <button onclick="applyStakesPreset()" class="px-3 py-2 bg-slate-700 text-white rounded text-sm">ใช้ค่าเริ่มต้น</button>
                     </div>
+
+                    <div class="flex gap-2 items-center">
+                        <input type="number" id="targetProfitInput" placeholder="เป้ากำไร (฿)" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-32">
+                        <button onclick="recommendStakesTargetProfit()" class="px-3 py-2 bg-amber-600 text-slate-900 rounded text-sm">แนะนำโดยกำไรเป้าหมาย</button>
+                        <div class="text-xs text-slate-400">(คำนวณ stake เพื่อให้กำไรสุทธิทั้งสองฝั่งเท่ากับเป้าหมาย)</div>
+                    </div>
                 </div>
 
                 <div class="space-y-3 pt-2 border-t border-slate-800">
@@ -179,7 +185,7 @@ move yhe demo<!DOCTYPE html>
                         </div>
                         <div class="pt-1 border-t border-emerald-500/20 text-xs font-bold text-emerald-300">
                             <div class="flex justify-between">
-                                <span>กำไร / ขาดทุน หากฝั่งเว็บที่ 1 ชนะ:</span>
+                                <span>ก���ไร / ขาดทุน หากฝั่งเว็บที่ 1 ชนะ:</span>
                                 <span id="profitIf1" class="text-emerald-400">+฿-111.54</span>
                             </div>
                             <div class="flex justify-between">
@@ -203,7 +209,7 @@ move yhe demo<!DOCTYPE html>
 
                 <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
                     <button onclick="switchTab('card')" id="tabCard" class="py-2 text-xs font-medium rounded bg-emerald-600 text-white transition">ชำระด้วยบัตร (Stripe)</button>
-                    <button onclick="switchTab('other')" id="tabOther" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">��่องทางอื่น</button>
+                    <button onclick="switchTab('other')" id="tabOther" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">ช่องทางอื่น</button>
                 </div>
 
                 <div id="contentCard" class="space-y-4">
@@ -223,7 +229,7 @@ move yhe demo<!DOCTYPE html>
                         <div>3. Manual verification after payment</div>
                     </div>
                     <button onclick="simulateManualPayment()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                        📩 ส่งข้อมูลชำระเงินสำหรับการตรวจสอบ
+                        📩 ส่งข้อมูลช��ระเงินสำหรับการตรวจสอบ
                     </button>
                 </div>
             </div>
@@ -242,7 +248,7 @@ move yhe demo<!DOCTYPE html>
                 leagueFilter: 'all',
                 calcMode: 'investment',
                 autoManual: true, // use per-site stakes by default
-                liveStatus: 'รอข้อมู���',
+                liveStatus: 'รอข้อมูล',
                 socket: null,
                 incomingCounter: 0
             };
@@ -363,6 +369,32 @@ move yhe demo<!DOCTYPE html>
                 calculateStakes();
             }
 
+            function recommendStakesTargetProfit() {
+                const match = state.matches.find(item => item.id === state.selectedMatchId);
+                if (!match) return;
+                const T = Number(document.getElementById('targetProfitInput').value || 0);
+                if (T <= 0 || Number.isNaN(T)) {
+                    alert('กรุณากรอกเป้ากำไรเป็นตัวเลขบวก (฿)');
+                    return;
+                }
+                const o1 = Number(match.odds1);
+                const o2 = Number(match.odds2);
+                const denom = (o1 * o2) - o1 - o2; // o1*o2 - o1 - o2
+                if (denom <= 0) {
+                    alert('ไม่สามารถคำนวณยอดเดิมพันสำหรับกำไรเป้าหมายนี้ — ไม่มี arbitrage ที่รองรับสำหรับคู่นี้');
+                    return;
+                }
+                const s1 = (T * o2) / denom;
+                const s2 = ((o1 - 1) * s1) - T;
+                if (!isFinite(s1) || !isFinite(s2) || s1 <= 0 || s2 <= 0) {
+                    alert('คำนวณแล้วได้ยอดไม่เป็นบวกหรือไม่สามารถใช้งานได้กับค่าที่ให้ไว้');
+                    return;
+                }
+                document.getElementById('manualStake1').value = Number(s1.toFixed(2));
+                document.getElementById('manualStake2').value = Number(s2.toFixed(2));
+                calculateStakes();
+            }
+
             function applyStakesPreset() {
                 // simple preset: small default values
                 document.getElementById('manualStake1').value = (1000).toFixed(2);
@@ -428,7 +460,7 @@ move yhe demo<!DOCTYPE html>
                                             <div class="font-bold ${roiClass}">+${match.roi.toFixed(2)}%</div>
                                         </div>
                                         <button onclick="selectMatch('${match.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                                            คำนวณคู่นี้
+                                            คำน��ณคู่นี้
                                         </button>
                                     </div>
                                 </div>
@@ -578,7 +610,7 @@ move yhe demo<!DOCTYPE html>
                     state.matches = state.matches.map((match, index) => {
                         const drift = ((Math.random() - 0.5) * 0.18);
                         const nextOdds1 = Math.max(1.25, Number((match.odds1 + drift).toFixed(2)));
-                        const nextOdds2 = Math.max(1.25, Number((match.odds2 + drift * -1).toFixed(2)));
+                        const nextOdds2 = Math.max(1.25, Number((match.odds2 + drift * -1).toFixed(22)));
                         const nextRoi = Math.max(1.2, Number((match.roi + (Math.random() - 0.5) * 0.5).toFixed(2)));
                         const minutes = match.timeLabel.includes('\'') ? Number.parseInt(match.timeLabel, 10) : match.minute;
                         const nextMinute = match.status === 'Live' ? Math.min(90, minutes + (index % 2 === 0 ? 1 : 0)) : match.minute;
