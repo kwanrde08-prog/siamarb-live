@@ -4,7 +4,7 @@ move yhe demo<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiamArb Live - ระบบค้นหาและคำนวณ Surebet อัตโนมัติ</title>
-    <meta name="description" content="ระบบค้นหาและคำนวณ Surebet แบบเรียลไทม์สำหรับพรีเมียร์ลีกและลาลีกา">
+    <meta name="description" content="ระบบค้นหาและคำนวณ Surebet แบบเรียลไทม์สำหรับพรีเมียร์ลีกและ[...]">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,7 +62,7 @@ move yhe demo<!DOCTYPE html>
             <div class="flex items-center gap-3">
                 <div id="liveTicker" class="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[11px] text-emerald-300">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 live-pulse"></span>
-                    LIVE FEED: <span id="liveStatusText">รอข้อมูล</span>
+                    LIVE FEED: <span id="liveStatusText">รอข้อมู��</span>
                 </div>
                 <button onclick="openDepositModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium text-sm transition shadow-lg shadow-emerald-900/40">
                     💳 เติมเงิน / สมัครแพ็กเกจ VIP (499 THB)
@@ -88,6 +88,29 @@ move yhe demo<!DOCTYPE html>
         </div>
 
         <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 h-fit sticky top-24 space-y-5 shadow-xl">
+            <!-- Profile / Member summary -->
+            <div id="memberProfile" class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center font-bold text-slate-900">MK</div>
+                    <div>
+                        <div class="font-bold text-white">สมาชิก: สมชาย</div>
+                        <div class="text-xs text-slate-400">สมาชิก VIP • แพลตฟอร์มตัวอย่าง</div>
+                    </div>
+                </div>
+
+                <div class="mt-3 grid grid-cols-2 gap-3 text-xs text-slate-300">
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+                        <div class="text-xs">Total profit per member to date*</div>
+                        <div id="totalProfitToDate" class="text-emerald-400 font-bold text-lg">฿128,450.75</div>
+                    </div>
+                    <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+                        <div class="text-xs">Total profit per month per member*</div>
+                        <div id="totalProfitPerMonth" class="text-amber-400 font-bold text-lg">฿9,875.06</div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 mt-2">* ตัวเลขจำลองเพื่อแสดงตัวอย่างบนโปรไฟล์ — ไม่ใช่ข้อมูลจริง</div>
+            </div>
+
             <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
                 <h2 class="font-bold text-base text-white flex items-center gap-2">
                     🧮 เครื่องคำนวณ Surebet แบบเรียลไทม์
@@ -96,7 +119,7 @@ move yhe demo<!DOCTYPE html>
             </div>
 
             <div id="calcNoSelection" class="text-center py-10 text-slate-500 text-sm">
-                กรุณาคลิกเลือก “คำนวณคู่นี้” จากรายการแข่งขันด้านซ้าย เพื่อคำนวณสัดส่วนการวางเงิน
+                กรุณาคลิกเลือก “คำนวณคู่นี้” จากรายการแข่งขันด้านซ้าย เพื่อคำนวณเงินเดิมพัน
             </div>
 
             <div id="calcActivePanel" class="space-y-4 hidden">
@@ -121,7 +144,7 @@ move yhe demo<!DOCTYPE html>
                 <div id="autoInputBlock" class="space-y-1.5">
                     <label id="inputLabel" class="text-xs font-medium text-slate-300">ระบุเงินเดิมพันรวมทั้งหมด (บาท):</label>
                     <div class="relative">
-                        <input type="number" id="targetInput" value="4500" min="0" step="1" oninput="calculateStakes()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <input type="number" id="targetInput" value="4500" min="0" step="1" oninput="calculateStakes()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
                         <span id="inputUnit" class="absolute right-3 top-2 text-xs text-slate-400">THB</span>
                     </div>
                 </div>
@@ -140,10 +163,10 @@ move yhe demo<!DOCTYPE html>
                             </div>
                             <div class="mt-2 flex gap-2 items-center">
                                 <label class="text-xs text-slate-400 w-28">จำนวนเงิน (฿):</label>
-                                <input type="number" min="0" step="0.01" id="manualStake1" value="2307.69" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStakes()">
+                                <input type="number" min="0" step="0.01" id="manualStake1" value="2307.69" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStake()">
                             </div>
                             <div class="mt-3">
-                                <button onclick="placeBetExternal(1)" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพันที่ 1xLite</button>
+                                <button onclick="placeBetExternal(1)" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพัน</button>
                             </div>
                         </div>
 
@@ -158,10 +181,10 @@ move yhe demo<!DOCTYPE html>
                             </div>
                             <div class="mt-2 flex gap-2 items-center">
                                 <label class="text-xs text-slate-400 w-28">จำนวนเงิน (฿):</label>
-                                <input type="number" min="0" step="0.01" id="manualStake2" value="2192.31" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStakes()">
+                                <input type="number" min="0" step="0.01" id="manualStake2" value="2192.31" class="bg-slate-900 text-white px-2 py-1 rounded text-xs w-full" oninput="calculateStake()">
                             </div>
                             <div class="mt-3">
-                                <button onclick="placeBetExternal(2)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพันที่ Pinnacle</button>
+                                <button onclick="placeBetExternal(2)" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-bold py-1.5 rounded text-xs">👉 ไปวางเดิมพัน</button>
                             </div>
                         </div>
                     </div>
@@ -176,7 +199,7 @@ move yhe demo<!DOCTYPE html>
                             <span id="sumTotalInv" class="font-bold text-white">฿4,500.00</span>
                         </div>
                         <div class="flex justify-between text-slate-400">
-                            <span>เมื่อผลออก ฝั่งเว็บที่ 1 ชนะ จะได้รับ:</span>
+                            <span>เมื่อผลออก ฝั่งเว���บที่ 1 ชนะ จะได้รับ:</span>
                             <span id="returnIf1" class="font-bold text-emerald-400">฿4,610.25</span>
                         </div>
                         <div class="flex justify-between text-slate-400">
@@ -197,464 +220,526 @@ move yhe demo<!DOCTYPE html>
                 </div>
             </div>
         </div>
-    </main>
 
-    <div id="depositModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative">
-            <button onclick="closeDepositModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
+        <div id="depositModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl relative">
+                <button onclick="closeDepositModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">✕</button>
 
-            <div class="border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-lg text-white">💳 ช่องทางชำระเงินและเติมเงินอัตโนมัติ</h3>
-                <p class="text-xs text-slate-400">ซื้อแพ็กเกจ VIP ลดพิเศษ: <span class="text-emerald-400 font-bold">499 THB</span> — ชำระด้วยบัตรเครดิต / Stripe / PromptPay</p>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
-                <button onclick="switchTab('card')" id="tabCard" class="py-2 text-xs font-medium rounded bg-emerald-600 text-white transition">ชำ��ะด้วยบัตร (Stripe)</button>
-                <button onclick="switchTab('other')" id="tabOther" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">ช่องทางอื่น</button>
-            </div>
-
-            <div id="contentCard" class="space-y-4">
-                <div class="space-y-3">
-                    <div class="text-xs text-slate-300">ซื้อแพ็กเกจ VIP ราคาพิเศษ ฿499 — ชำระผ่าน Stripe</div>
-                    <div class="text-xs text-slate-400">หมายเหตุ: ปัจจุบันระบบตัวอย่างจะจำลองการไปยังหน้าชำระเงินและแสดงข้อความยืนยันการสั่งซื้อ</div>
+                <div class="border-b border-slate-800 pb-3">
+                    <h3 class="font-bold text-lg text-white">💳 ช่องทางชำระเงินและเติมเงินอ��ตโนมัติ</h3>
+                    <p class="text-xs text-slace-400">ซื้อแพ็กเกจ VIP ลดพิเศษ: <span class="text-emerald-400 font-bold">499 THB</span> — ชำระด้วย[...]</p>
                 </div>
-                <button onclick="simulateStripeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                    ✅ ดำเนินการชำระเงินผ่าน Stripe
-                </button>
-            </div>
 
-            <div id="contentOther" class="hidden space-y-4">
-                <div class="space-y-3 text-sm text-slate-300">
-                    <div>1. PromptPay / TrueMoney Wallet</div>
-                    <div>2. Bank Transfer / QR Payment</div>
-                    <div>3. Manual verification after payment</div>
+                <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-lg border border-slate-800">
+                    <button onclick="switchTab('card')" id="tabCard" class="py-2 text-xs font-medium rounded bg-emerald-600 text-white transition">ชำระด้วยบัตร (Stripe)</button>
+                    <button onclick="switchTab('other')" id="tabOther" class="py-2 text-xs font-medium rounded text-slate-400 hover:text-white transition">ช่องทางอื่น</button>
                 </div>
-                <button onclick="simulateManualPayment()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                    📩 ส่งข้อมูลชำระเงินสำหรับการตรวจสอบ
-                </button>
+
+                <div id="contentCard" class="space-y-4">
+                    <div class="space-y-3">
+                        <div class="text-xs text-slate-300">ซื้อแพ็กเกจ VIP ราคาพิเศษ ฿499 — ชำระผ่าน Stripe</div>
+                        <div class="text-xs text-slate-400">หมายเหตุ: ปัจจุบันระบบตัวอย่างจะจำลองการไปยังหน้าชำระเงิ���</div>
+                    </div>
+                    <button onclick="simulateStripeCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition">
+                        ✅ ดำเนินการชำระเงินผ่าน Stripe
+                    </button>
+                </div>
+
+                <div id="contentOther" class="hidden space-y-4">
+                    <div class="space-y-3 text-sm text-slate-300">
+                        <div>1. PromptPay / TrueMoney Wallet</div>
+                        <div>2. Bank Transfer / QR Payment</div>
+                        <div>3. Manual verification after payment</div>
+                    </div>
+                    <button onclick="simulateManualPayment()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-lg text-sm transition">
+                        📩 ส่งข้อมูลชำระเงินสำหรับการตรวจสอบ
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script>
-        const DEFAULT_WS_URL = (window.REALTIME_WS_CONFIG && window.REALTIME_WS_CONFIG.url) || 'ws://localhost:8080';
-        const state = {
-            matches: [],
-            selectedMatchId: null,
-            leagueFilter: 'all',
-            calcMode: 'investment',
-            autoManual: false,
-            liveStatus: 'รอข้อมูล',
-            socket: null,
-            incomingCounter: 0
-        };
+        <script>
+            const DEFAULT_WS_URL = (window.REALTIME_WS_CONFIG && window.REALTIME_WS_CONFIG.url) || 'ws://localhost:8080';
+            const BOOKIE_SOURCES = [
+                'https://www.pinnacle.com',
+                'https://1xlite-34606.com'
+            ]; // editable list — user said sites may change later
 
-        function randomBetween(min, max) {
-            return Number((Math.random() * (max - min) + min).toFixed(3));
-        }
+            const state = {
+                matches: [],
+                selectedMatchId: null,
+                leagueFilter: 'all',
+                calcMode: 'investment',
+                autoManual: false,
+                liveStatus: 'รอข้อมูล',
+                socket: null,
+                incomingCounter: 0
+            };
 
-        function formatMoney(value) {
-            return new Intl.NumberFormat('th-TH', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(value);
-        }
-
-        function formatPercent(value) {
-            return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-        }
-
-        function buildMatches() {
-            return [
-                {
-                    id: 'match-1',
-                    league: 'EPL',
-                    home: 'Manchester City',
-                    away: 'Arsenal',
-                    status: 'Live',
-                    minute: 67,
-                    market: 'Over / Under 2.5',
-                    odds1: 2.12,
-                    odds2: 1.87,
-                    site1: '1xLite',
-                    site2: 'Pinnacle',
-                    side1: 'Over 2.5',
-                    side2: 'Under 2.5',
-                    roi: 2.42,
-                    timeLabel: '67\'',
-                    lastUpdate: Date.now()
-                },
-                {
-                    id: 'match-2',
-                    league: 'LaLiga',
-                    home: 'Real Madrid',
-                    away: 'Barcelona',
-                    status: 'Live',
-                    minute: 54,
-                    market: 'Double Chance',
-                    odds1: 1.78,
-                    odds2: 1.92,
-                    site1: '1xLite',
-                    site2: 'Pinnacle',
-                    side1: 'Home / Draw',
-                    side2: 'Away / Draw',
-                    roi: 1.96,
-                    timeLabel: '54\'',
-                    lastUpdate: Date.now()
-                },
-                {
-                    id: 'match-3',
-                    league: 'EPL',
-                    home: 'Liverpool',
-                    away: 'Chelsea',
-                    status: 'Live',
-                    minute: 73,
-                    market: 'Both Teams To Score',
-                    odds1: 1.68,
-                    odds2: 2.15,
-                    site1: '1xLite',
-                    site2: 'Pinnacle',
-                    side1: 'Yes',
-                    side2: 'No',
-                    roi: 2.18,
-                    timeLabel: '73\'',
-                    lastUpdate: Date.now()
-                },
-                {
-                    id: 'match-4',
-                    league: 'LaLiga',
-                    home: 'Atletico Madrid',
-                    away: 'Sevilla',
-                    status: 'Scheduled',
-                    minute: 0,
-                    market: '1X / 12',
-                    odds1: 1.46,
-                    odds2: 1.59,
-                    site1: '1xLite',
-                    site2: 'Pinnacle',
-                    side1: '1X',
-                    side2: '12',
-                    roi: 1.58,
-                    timeLabel: '18:30',
-                    lastUpdate: Date.now()
-                }
-            ];
-        }
-
-        function getVisibleMatches() {
-            return state.matches.filter(match => {
-                if (state.leagueFilter === 'all') return true;
-                return match.league === state.leagueFilter;
-            });
-        }
-
-        function updateLiveStatus(text) {
-            const node = document.getElementById('liveStatusText');
-            if (node) node.textContent = text;
-            state.liveStatus = text;
-        }
-
-        function selectMatch(matchId) {
-            state.selectedMatchId = matchId;
-            const match = state.matches.find(item => item.id === matchId);
-            if (!match) return;
-
-            const calcNoSelection = document.getElementById('calcNoSelection');
-            const calcActivePanel = document.getElementById('calcActivePanel');
-            if (calcNoSelection && calcActivePanel) {
-                calcNoSelection.classList.add('hidden');
-                calcActivePanel.classList.remove('hidden');
+            function randomBetween(min, max) {
+                return Number((Math.random() * (max - min) + min).toFixed(3));
             }
 
-            document.getElementById('calcMatchTitle').textContent = `${match.home} vs ${match.away}`;
-            document.getElementById('calcMarket').textContent = match.market;
-            document.getElementById('calcRoiBadge').textContent = `+${match.roi.toFixed(2)}%`;
+            function formatMoney(value) {
+                return new Intl.NumberFormat('th-TH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(value);
+            }
 
-            document.getElementById('manualBook1').textContent = match.site1;
-            document.getElementById('manualBook2').textContent = match.site2;
-            document.getElementById('manualOdds1').textContent = `Odds: ${match.odds1.toFixed(2)}`;
-            document.getElementById('manualOdds2').textContent = `Odds: ${match.odds2.toFixed(2)}`;
-            document.getElementById('manualSide1Name').value = match.side1;
-            document.getElementById('manualSide2Name').value = match.side2;
-            document.getElementById('manualStake1').value = (4500 / (match.odds1 + match.odds2)).toFixed(2);
-            document.getElementById('manualStake2').value = (4500 / (match.odds1 + match.odds2)).toFixed(2);
+            function formatPercent(value) {
+                return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+            }
 
-            calculateStakes();
-            renderMatches();
-        }
+            function buildMatches() {
+                return [
+                    {
+                        id: 'match-1',
+                        league: 'EPL',
+                        home: 'Manchester City',
+                        away: 'Arsenal',
+                        status: 'Live',
+                        minute: 67,
+                        market: 'Over / Under 2.5',
+                        odds1: 2.12,
+                        odds2: 1.87,
+                        site1: '1xLite',
+                        site2: 'Pinnacle',
+                        side1: 'Over 2.5',
+                        side2: 'Under 2.5',
+                        roi: 2.42,
+                        timeLabel: '67\'',
+                        lastUpdate: Date.now()
+                    },
+                    {
+                        id: 'match-2',
+                        league: 'LaLiga',
+                        home: 'Real Madrid',
+                        away: 'Barcelona',
+                        status: 'Live',
+                        minute: 54,
+                        market: 'Double Chance',
+                        odds1: 1.78,
+                        odds2: 1.92,
+                        site1: '1xLite',
+                        site2: 'Pinnacle',
+                        side1: 'Home / Draw',
+                        side2: 'Away / Draw',
+                        roi: 1.96,
+                        timeLabel: '54\'',
+                        lastUpdate: Date.now()
+                    },
+                    {
+                        id: 'match-3',
+                        league: 'EPL',
+                        home: 'Liverpool',
+                        away: 'Chelsea',
+                        status: 'Live',
+                        minute: 73,
+                        market: 'Both Teams To Score',
+                        odds1: 1.68,
+                        odds2: 2.15,
+                        site1: '1xLite',
+                        site2: 'Pinnacle',
+                        side1: 'Yes',
+                        side2: 'No',
+                        roi: 2.18,
+                        timeLabel: '73\'',
+                        lastUpdate: Date.now()
+                    },
+                    {
+                        id: 'match-4',
+                        league: 'LaLiga',
+                        home: 'Atletico Madrid',
+                        away: 'Sevilla',
+                        status: 'Scheduled',
+                        minute: 0,
+                        market: '1X / 12',
+                        odds1: 1.46,
+                        odds2: 1.59,
+                        site1: '1xLite',
+                        site2: 'Pinnacle',
+                        side1: '1X',
+                        side2: '12',
+                        roi: 1.58,
+                        timeLabel: '18:30',
+                        lastUpdate: Date.now()
+                    }
+                ];
+            }
 
-        function renderMatches() {
-            const container = document.getElementById('matchesContainer');
-            if (!container) return;
+            function getVisibleMatches() {
+                return state.matches.filter(match => {
+                    if (state.leagueFilter === 'all') return true;
+                    return match.league === state.leagueFilter;
+                });
+            }
 
-            const visible = getVisibleMatches();
-            container.innerHTML = visible.map(match => {
-                const isSelected = match.id === state.selectedMatchId;
-                const roiClass = match.roi > 2 ? 'text-emerald-400' : 'text-yellow-400';
-                return `
-                    <div class="bg-slate-900 rounded-xl border ${isSelected ? 'border-emerald-500 ring-1 ring-emerald-500/40' : 'border-slate-800'} overflow-hidden hover:border-slate-700 transition">
-                        <div class="p-4">
-                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                <div>
-                                    <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
-                                        <span class="px-2 py-0.5 bg-slate-800 rounded-full">${match.league}</span>
-                                        <span class="text-emerald-400 font-medium">${match.status}</span>
-                                        <span>${match.timeLabel}</span>
+            function updateLiveStatus(text) {
+                const node = document.getElementById('liveStatusText');
+                if (node) node.textContent = text;
+                state.liveStatus = text;
+            }
+
+            function selectMatch(matchId) {
+                state.selectedMatchId = matchId;
+                const match = state.matches.find(item => item.id === matchId);
+                if (!match) return;
+
+                const calcNoSelection = document.getElementById('calcNoSelection');
+                const calcActivePanel = document.getElementById('calcActivePanel');
+                if (calcNoSelection && calcActivePanel) {
+                    calcNoSelection.classList.add('hidden');
+                    calcActivePanel.classList.remove('hidden');
+                }
+
+                document.getElementById('calcMatchTitle').textContent = `${match.home} vs ${match.away}`;
+                document.getElementById('calcMarket').textContent = match.market;
+                document.getElementById('calcRoiBadge').textContent = `+${match.roi.toFixed(2)}%`;
+
+                document.getElementById('manualBook1').textContent = match.site1;
+                document.getElementById('manualBook2').textContent = match.site2;
+                document.getElementById('manualOdds1').textContent = `Odds: ${match.odds1.toFixed(2)}`;
+                document.getElementById('manualOdds2').textContent = `Odds: ${match.odds2.toFixed(2)}`;
+                document.getElementById('manualSide1Name').value = match.side1;
+                document.getElementById('manualSide2Name').value = match.side2;
+                document.getElementById('manualStake1').value = (4500 / (match.odds1 + match.odds2)).toFixed(2);
+                document.getElementById('manualStake2').value = (4500 / (match.odds1 + match.odds2)).toFixed(2);
+
+                calculateStakes();
+                renderMatches();
+            }
+
+            function renderMatches() {
+                const container = document.getElementById('matchesContainer');
+                if (!container) return;
+
+                const visible = getVisibleMatches();
+                container.innerHTML = visible.map(match => {
+                    const isSelected = match.id === state.selectedMatchId;
+                    const roiClass = match.roi > 2 ? 'text-emerald-400' : 'text-yellow-400';
+                    return `
+                        <div class="bg-slate-900 rounded-xl border ${isSelected ? 'border-emerald-500 ring-1 ring-emerald-500/40' : 'border-slate-800'} overflow-hidden hover:border-slate-700 transition">
+                            <div class="p-4">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                                    <div>
+                                        <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                                            <span class="px-2 py-0.5 bg-slate-800 rounded-full">${match.league}</span>
+                                            <span class="text-emerald-400 font-medium">${match.status}</span>
+                                            <span>${match.timeLabel}</span>
+                                        </div>
+                                        <div class="text-lg font-bold text-white">${match.home} <span class="text-slate-500">vs</span> ${match.away}</div>
                                     </div>
-                                    <div class="text-lg font-bold text-white">${match.home} <span class="text-slate-500">vs</span> ${match.away}</div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-center">
+                                            <div class="text-[10px] text-slate-400">ROI</div>
+                                            <div class="font-bold ${roiClass}">+${match.roi.toFixed(2)}%</div>
+                                        </div>
+                                        <button onclick="selectMatch('${match.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                            คำนวณคู่นี้
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <div class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-center">
-                                        <div class="text-[10px] text-slate-400">ROI</div>
-                                        <div class="font-bold ${roiClass}">+${match.roi.toFixed(2)}%</div>
-                                    </div>
-                                    <button onclick="selectMatch('${match.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                                        คำนวณคู่นี้
-                                    </button>
-                                </div>
-                            </div>
 
-                            <div class="mt-4 grid grid-cols-2 gap-3">
-                                <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
-                                    <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-                                        <span class="font-bold text-amber-400">${match.site1}</span>
-                                        <span class="text-white font-mono">${match.odds1.toFixed(2)}</span>
+                                <div class="mt-4 grid grid-cols-2 gap-3">
+                                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                                        <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                            <span class="font-bold text-amber-400">${match.site1}</span>
+                                            <span class="text-white font-mono">${match.odds1.toFixed(2)}</span>
+                                        </div>
+                                        <div class="text-sm font-semibold text-white">${match.side1}</div>
                                     </div>
-                                    <div class="text-sm font-semibold text-white">${match.side1}</div>
-                                </div>
-                                <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
-                                    <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
-                                        <span class="font-bold text-cyan-400">${match.site2}</span>
-                                        <span class="text-white font-mono">${match.odds2.toFixed(2)}</span>
+                                    <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+                                        <div class="flex items-center justify-between text-xs text-slate-400 mb-2">
+                                            <span class="font-bold text-cyan-400">${match.site2}</span>
+                                            <span class="text-white font-mono">${match.odds2.toFixed(2)}</span>
+                                        </div>
+                                        <div class="text-sm font-semibold text-white">${match.side2}</div>
                                     </div>
-                                    <div class="text-sm font-semibold text-white">${match.side2}</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('') || '<div class="text-slate-500 text-sm">ไม่มีเกมในลีกนี้</div>';
+                    `;
+                }).join('') || '<div class="text-slate-500 text-sm">ไม่มีเกมในลีกนี้</div>';
 
-            document.querySelectorAll('.league-btn').forEach(btn => {
-                const isActive = btn.dataset.league === state.leagueFilter;
-                btn.classList.toggle('active', isActive);
-                btn.classList.toggle('bg-emerald-600', isActive);
-                btn.classList.toggle('text-white', isActive);
-                btn.classList.toggle('bg-slate-800', !isActive);
-                btn.classList.toggle('text-slate-300', !isActive);
-            });
-        }
-
-        function setCalcMode(mode) {
-            state.calcMode = mode;
-            const inv = document.getElementById('modeInvBtn');
-            const prof = document.getElementById('modeProfitBtn');
-            if (mode === 'investment') {
-                inv.classList.add('bg-emerald-600', 'text-white');
-                inv.classList.remove('text-slate-400');
-                prof.classList.remove('bg-emerald-600', 'text-white');
-                prof.classList.add('text-slate-400');
-            } else {
-                prof.classList.add('bg-emerald-600', 'text-white');
-                prof.classList.remove('text-slate-400');
-                inv.classList.remove('bg-emerald-600', 'text-white');
-                inv.classList.add('text-slate-400');
+                document.querySelectorAll('.league-btn').forEach(btn => {
+                    const isActive = btn.dataset.league === state.leagueFilter;
+                    btn.classList.toggle('active', isActive);
+                    btn.classList.toggle('bg-emerald-600', isActive);
+                    btn.classList.toggle('text-white', isActive);
+                    btn.classList.toggle('bg-slate-800', !isActive);
+                    btn.classList.toggle('text-slate-300', !isActive);
+                });
             }
-            calculateStakes();
-        }
 
-        function setCalcManual(enabled) {
-            state.autoManual = enabled;
-            document.getElementById('autoInputBlock').classList.toggle('hidden', enabled);
-            document.getElementById('manualInputBlock').classList.toggle('hidden', !enabled);
-            calculateStakes();
-        }
-
-        function calculateStakes() {
-            const match = state.matches.find(item => item.id === state.selectedMatchId);
-            if (!match) return;
-
-            const total = Number(document.getElementById('targetInput').value || 0);
-            const odds1 = Number(match.odds1 || 0);
-            const odds2 = Number(match.odds2 || 0);
-            const stake1 = state.autoManual ? Number(document.getElementById('manualStake1').value || 0) : total * (odds2 / (odds1 + odds2));
-            const stake2 = state.autoManual ? Number(document.getElementById('manualStake2').value || 0) : total * (odds1 / (odds1 + odds2));
-
-            const totalInv = stake1 + stake2;
-            const return1 = stake1 * odds1;
-            const return2 = stake2 * odds2;
-            const profit1 = return1 - totalInv;
-            const profit2 = return2 - totalInv;
-
-            document.getElementById('sumTotalInv').textContent = `฿${formatMoney(totalInv)}`;
-            document.getElementById('returnIf1').textContent = `฿${formatMoney(return1)}`;
-            document.getElementById('returnIf2').textContent = `฿${formatMoney(return2)}`;
-            document.getElementById('profitIf1').textContent = `${profit1 >= 0 ? '+' : ''}฿${formatMoney(profit1)}`;
-            document.getElementById('profitIf2').textContent = `${profit2 >= 0 ? '+' : ''}฿${formatMoney(profit2)}`;
-
-            document.getElementById('manualStake1').value = state.autoManual ? document.getElementById('manualStake1').value : stake1.toFixed(2);
-            document.getElementById('manualStake2').value = state.autoManual ? document.getElementById('manualStake2').value : stake2.toFixed(2);
-
-            const totalRoi = Math.min(((return1 - totalInv) / totalInv) * 100, ((return2 - totalInv) / totalInv) * 100) || 0;
-            const badgeText = isFinite(totalRoi) ? `+${Math.max(0, totalRoi).toFixed(2)}%` : '+0.00%';
-            document.getElementById('calcRoiBadge').textContent = badgeText;
-        }
-
-        function filterLeague(league) {
-            state.leagueFilter = league;
-            renderMatches();
-            if (state.selectedMatchId) {
-                const existing = state.matches.find(item => item.id === state.selectedMatchId);
-                if (existing && getVisibleMatches().length && !getVisibleMatches().some(item => item.id === state.selectedMatchId)) {
-                    selectMatch(getVisibleMatches()[0].id);
+            function setCalcMode(mode) {
+                state.calcMode = mode;
+                const inv = document.getElementById('modeInvBtn');
+                const prof = document.getElementById('modeProfitBtn');
+                if (mode === 'investment') {
+                    inv.classList.add('bg-emerald-600', 'text-white');
+                    inv.classList.remove('text-slate-400');
+                    prof.classList.remove('bg-emerald-600', 'text-white');
+                    prof.classList.add('text-slate-400');
+                } else {
+                    prof.classList.add('bg-emerald-600', 'text-white');
+                    prof.classList.remove('text-slate-400');
+                    inv.classList.remove('bg-emerald-600', 'text-white');
+                    inv.classList.add('text-slate-400');
                 }
+                calculateStakes();
             }
-        }
 
-        function openDepositModal() {
-            document.getElementById('depositModal').classList.remove('hidden');
-        }
+            function setCalcManual(enabled) {
+                state.autoManual = enabled;
+                document.getElementById('autoInputBlock').classList.toggle('hidden', enabled);
+                document.getElementById('manualInputBlock').classList.toggle('hidden', !enabled);
+                calculateStakes();
+            }
 
-        function closeDepositModal() {
-            document.getElementById('depositModal').classList.add('hidden');
-        }
-
-        function switchTab(tab) {
-            document.getElementById('contentCard').classList.toggle('hidden', tab !== 'card');
-            document.getElementById('contentOther').classList.toggle('hidden', tab !== 'other');
-            document.getElementById('tabCard').classList.toggle('bg-emerald-600', tab === 'card');
-            document.getElementById('tabCard').classList.toggle('text-white', tab === 'card');
-            document.getElementById('tabCard').classList.toggle('text-slate-400', tab !== 'card');
-            document.getElementById('tabOther').classList.toggle('bg-emerald-600', tab === 'other');
-            document.getElementById('tabOther').classList.toggle('text-white', tab === 'other');
-            document.getElementById('tabOther').classList.toggle('text-slate-400', tab !== 'other');
-        }
-
-        function simulateStripeCheckout() {
-            alert('จำลองการชำระเงินผ่าน Stripe เรียบร้อยแล้ว\nVIP package 499 THB ได้รับการยืนยัน');
-            closeDepositModal();
-        }
-
-        function simulateManualPayment() {
-            alert('ข้อมูลการชำระเงินถูกส่งแล้ว กรุณารอการยืนยันจากทีมงาน');
-            closeDepositModal();
-        }
-
-        function placeBetExternal(siteNo) {
-            const match = state.matches.find(item => item.id === state.selectedMatchId);
-            if (!match) return;
-            const siteName = siteNo === 1 ? match.site1 : match.site2;
-            alert(`เปิดแท็บการเดิมพันไปที่ ${siteName}\nคู่นี้: ${match.home} vs ${match.away}`);
-        }
-
-        function applyRealtimeUpdate(data) {
-            if (!data || !Array.isArray(data.matches)) return;
-
-            data.matches.forEach(updated => {
-                const match = state.matches.find(item => item.id === updated.id);
+            function calculateStakes() {
+                const match = state.matches.find(item => item.id === state.selectedMatchId);
                 if (!match) return;
-                if (updated.odds1) match.odds1 = Number(updated.odds1);
-                if (updated.odds2) match.odds2 = Number(updated.odds2);
-                if (updated.roi) match.roi = Number(updated.roi);
-                if (updated.site1) match.site1 = updated.site1;
-                if (updated.site2) match.site2 = updated.site2;
-                if (updated.market) match.market = updated.market;
-                if (updated.side1) match.side1 = updated.side1;
-                if (updated.side2) match.side2 = updated.side2;
-                if (updated.timeLabel) match.timeLabel = updated.timeLabel;
-                match.lastUpdate = Date.now();
-            });
 
-            renderMatches();
-            if (state.selectedMatchId) {
-                const selected = state.matches.find(item => item.id === state.selectedMatchId);
-                if (selected) {
-                    selectMatch(selected.id);
+                const total = Number(document.getElementById('targetInput').value || 0);
+                const odds1 = Number(match.odds1 || 0);
+                const odds2 = Number(match.odds2 || 0);
+                const stake1 = state.autoManual ? Number(document.getElementById('manualStake1').value || 0) : total * (odds2 / (odds1 + odds2));
+                const stake2 = state.autoManual ? Number(document.getElementById('manualStake2').value || 0) : total * (odds1 / (odds1 + odds2));
+
+                const totalInv = stake1 + stake2;
+                const return1 = stake1 * odds1;
+                const return2 = stake2 * odds2;
+                const profit1 = return1 - totalInv;
+                const profit2 = return2 - totalInv;
+
+                document.getElementById('sumTotalInv').textContent = `฿${formatMoney(totalInv)}`;
+                document.getElementById('returnIf1').textContent = `฿${formatMoney(return1)}`;
+                document.getElementById('returnIf2').textContent = `฿${formatMoney(return2)}`;
+                document.getElementById('profitIf1').textContent = `${profit1 >= 0 ? '+' : ''}฿${formatMoney(profit1)}`;
+                document.getElementById('profitIf2').textContent = `${profit2 >= 0 ? '+' : ''}฿${formatMoney(profit2)}`;
+
+                document.getElementById('manualStake1').value = state.autoManual ? document.getElementById('manualStake1').value : stake1.toFixed(2);
+                document.getElementById('manualStake2').value = state.autoManual ? document.getElementById('manualStake2').value : stake2.toFixed(2);
+
+                const totalRoi = Math.min(((return1 - totalInv) / totalInv) * 100, ((return2 - totalInv) / totalInv) * 100) || 0;
+                const badgeText = isFinite(totalRoi) ? `+${Math.max(0, totalRoi).toFixed(2)}%` : '+0.00%';
+                document.getElementById('calcRoiBadge').textContent = badgeText;
+            }
+
+            function filterLeague(league) {
+                state.leagueFilter = league;
+                renderMatches();
+                if (state.selectedMatchId) {
+                    const existing = state.matches.find(item => item.id === state.selectedMatchId);
+                    if (existing && getVisibleMatches().length && !getVisibleMatches().some(item => item.id === state.selectedMatchId)) {
+                        selectMatch(getVisibleMatches()[0].id);
+                    }
                 }
             }
-        }
 
-        function startDemoRealtimeFeed() {
-            setInterval(() => {
-                state.incomingCounter += 1;
-                updateLiveStatus(`อัปเดต ${state.incomingCounter}s`);
+            function openDepositModal() {
+                document.getElementById('depositModal').classList.remove('hidden');
+            }
 
-                state.matches = state.matches.map((match, index) => {
-                    const drift = ((Math.random() - 0.5) * 0.18);
-                    const nextOdds1 = Math.max(1.25, Number((match.odds1 + drift).toFixed(2)));
-                    const nextOdds2 = Math.max(1.25, Number((match.odds2 + drift * -1).toFixed(2)));
-                    const nextRoi = Math.max(1.2, Number((match.roi + (Math.random() - 0.5) * 0.5).toFixed(2)));
-                    const minutes = match.timeLabel.includes('\'') ? Number.parseInt(match.timeLabel, 10) : match.minute;
-                    const nextMinute = match.status === 'Live' ? Math.min(90, minutes + (index % 2 === 0 ? 1 : 0)) : match.minute;
-                    const timeLabel = match.status === 'Live' ? `${nextMinute}'` : match.timeLabel;
+            function closeDepositModal() {
+                document.getElementById('depositModal').classList.add('hidden');
+            }
 
-                    return {
-                        ...match,
-                        odds1: nextOdds1,
-                        odds2: nextOdds2,
-                        roi: nextRoi,
-                        timeLabel,
-                        minute: nextMinute,
-                        lastUpdate: Date.now()
-                    };
+            function switchTab(tab) {
+                document.getElementById('contentCard').classList.toggle('hidden', tab !== 'card');
+                document.getElementById('contentOther').classList.toggle('hidden', tab !== 'other');
+                document.getElementById('tabCard').classList.toggle('bg-emerald-600', tab === 'card');
+                document.getElementById('tabCard').classList.toggle('text-white', tab === 'card');
+                document.getElementById('tabCard').classList.toggle('text-slate-400', tab !== 'card');
+                document.getElementById('tabOther').classList.toggle('bg-emerald-600', tab === 'other');
+                document.getElementById('tabOther').classList.toggle('text-white', tab === 'other');
+                document.getElementById('tabOther').classList.toggle('text-slate-400', tab !== 'other');
+            }
+
+            function simulateStripeCheckout() {
+                alert('จำลองการชำระเงินผ่าน Stripe เรียบร้อยแล้ว\nVIP package 499 THB ได้รับการยืนยัน');
+                closeDepositModal();
+            }
+
+            function simulateManualPayment() {
+                alert('ข้อมูลการชำระเงินถูกส่งแล้ว กรุณารอการยืนยันจากทีมงาน');
+                closeDepositModal();
+            }
+
+            function placeBetExternal(siteNo) {
+                const match = state.matches.find(item => item.id === state.selectedMatchId);
+                if (!match) return;
+                const siteName = siteNo === 1 ? match.site1 : match.site2;
+                // Open external betting site in a new tab (user can change BOOKIE_SOURCES later)
+                const url = BOOKIE_SOURCES[siteNo - 1] || 'about:blank';
+                window.open(url, '_blank');
+                alert(`เปิดแท็บการเดิมพันไปที่ ${siteName}\nคู่นี้: ${match.home} vs ${match.away}`);
+            }
+
+            function applyRealtimeUpdate(data) {
+                if (!data || !Array.isArray(data.matches)) return;
+
+                data.matches.forEach(updated => {
+                    const match = state.matches.find(item => item.id === updated.id);
+                    if (!match) return;
+                    if (updated.odds1) match.odds1 = Number(updated.odds1);
+                    if (updated.odds2) match.odds2 = Number(updated.odds2);
+                    if (updated.roi) match.roi = Number(updated.roi);
+                    if (updated.site1) match.site1 = updated.site1;
+                    if (updated.site2) match.site2 = updated.site2;
+                    if (updated.market) match.market = updated.market;
+                    if (updated.side1) match.side1 = updated.side1;
+                    if (updated.side2) match.side2 = updated.side2;
+                    if (updated.timeLabel) match.timeLabel = updated.timeLabel;
+                    match.lastUpdate = Date.now();
                 });
 
                 renderMatches();
                 if (state.selectedMatchId) {
                     const selected = state.matches.find(item => item.id === state.selectedMatchId);
                     if (selected) {
-                        document.getElementById('calcRoiBadge').textContent = `+${selected.roi.toFixed(2)}%`;
-                        document.getElementById('manualOdds1').textContent = `Odds: ${selected.odds1.toFixed(2)}`;
-                        document.getElementById('manualOdds2').textContent = `Odds: ${selected.odds2.toFixed(2)}`;
+                        selectMatch(selected.id);
                     }
                 }
-            }, 3500);
-        }
-
-        function connectRealtimeFeed() {
-            const url = DEFAULT_WS_URL;
-            try {
-                const socket = new WebSocket(url);
-                state.socket = socket;
-
-                socket.onopen = () => {
-                    updateLiveStatus('เชื่อมต่อเว็บซ็อกเก็ต');
-                };
-
-                socket.onmessage = (event) => {
-                    try {
-                        const payload = JSON.parse(event.data);
-                        if (payload && payload.matches) {
-                            updateLiveStatus('อัปเดตสดจากเซิร์ฟเวอร์');
-                            applyRealtimeUpdate(payload);
-                        }
-                    } catch (error) {
-                        updateLiveStatus('รับข้อมูลสด');
-                    }
-                };
-
-                socket.onerror = () => {
-                    updateLiveStatus('โหมดจำลอง realtime');
-                };
-
-                socket.onclose = () => {
-                    updateLiveStatus('เชื่อมต่อหลุด • ใช้โหมดจำลอง');
-                };
-            } catch (error) {
-                updateLiveStatus('โหมดจำลอง realtime');
             }
-        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            state.matches = buildMatches();
-            renderMatches();
-            selectMatch(state.matches[0].id);
-            setCalcMode('investment');
-            setCalcManual(false);
-            calculateStakes();
-            startDemoRealtimeFeed();
-            connectRealtimeFeed();
-        });
-    </script>
-</body>
-</html>
+            function startDemoRealtimeFeed() {
+                setInterval(() => {
+                    state.incomingCounter += 1;
+                    updateLiveStatus(`อัปเดต ${state.incomingCounter}s`);
+
+                    state.matches = state.matches.map((match, index) => {
+                        const drift = ((Math.random() - 0.5) * 0.18);
+                        const nextOdds1 = Math.max(1.25, Number((match.odds1 + drift).toFixed(2)));
+                        const nextOdds2 = Math.max(1.25, Number((match.odds2 + drift * -1).toFixed(2)));
+                        const nextRoi = Math.max(1.2, Number((match.roi + (Math.random() - 0.5) * 0.5).toFixed(2)));
+                        const minutes = match.timeLabel.includes('\'') ? Number.parseInt(match.timeLabel, 10) : match.minute;
+                        const nextMinute = match.status === 'Live' ? Math.min(90, minutes + (index % 2 === 0 ? 1 : 0)) : match.minute;
+                        const timeLabel = match.status === 'Live' ? `${nextMinute}'` : match.timeLabel;
+
+                        return {
+                            ...match,
+                            odds1: nextOdds1,
+                            odds2: nextOdds2,
+                            roi: nextRoi,
+                            timeLabel,
+                            minute: nextMinute,
+                            lastUpdate: Date.now()
+                        };
+                    });
+
+                    renderMatches();
+                    if (state.selectedMatchId) {
+                        const selected = state.matches.find(item => item.id === state.selectedMatchId);
+                        if (selected) {
+                            document.getElementById('calcRoiBadge').textContent = `+${selected.roi.toFixed(2)}%`;
+                            document.getElementById('manualOdds1').textContent = `Odds: ${selected.odds1.toFixed(2)}`;
+                            document.getElementById('manualOdds2').textContent = `Odds: ${selected.odds2.toFixed(2)}`;
+                        }
+                    }
+                }, 3500);
+            }
+
+            // Poll external bookie endpoints (best-effort). Will try multiple common paths and use first valid response.
+            async function pollBookiesOnce() {
+                const endpoints = ['api/matches', 'api/live', 'live', 'odds', 'api/odds'];
+                for (const base of BOOKIE_SOURCES) {
+                    for (const ep of endpoints) {
+                        const url = `${base.replace(/\/+$/, '')}/${ep.replace(/^\/+/, '')}`;
+                        try {
+                            const res = await fetch(url, { mode: 'cors' });
+                            if (!res.ok) continue;
+                            const data = await res.json();
+                            if (data && Array.isArray(data.matches)) {
+                                updateLiveStatus(`อัปเดตจาก ${base}`);
+                                applyRealtimeUpdate({ matches: data.matches });
+                                return true;
+                            }
+                            // Some APIs may return matches array at root
+                            if (Array.isArray(data)) {
+                                updateLiveStatus(`อัปเดตจาก ${base}`);
+                                applyRealtimeUpdate({ matches: data });
+                                return true;
+                            }
+                        } catch (e) {
+                            // ignore and try next
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function startPollingBookies(intervalMs = 7000) {
+                // run immediately and then at interval
+                pollBookiesOnce();
+                setInterval(async () => {
+                    const ok = await pollBookiesOnce();
+                    if (!ok) {
+                        // fallback: keep demo mode status
+                        updateLiveStatus('โหมดจำลอง realtime (ไม่สามารถเข้าถึง bookmakers)');
+                    }
+                }, intervalMs);
+            }
+
+            function connectRealtimeFeed() {
+                const url = DEFAULT_WS_URL;
+                try {
+                    const socket = new WebSocket(url);
+                    state.socket = socket;
+
+                    socket.onopen = () => {
+                        updateLiveStatus('เชื่อมต่อเว็บซ็อกเก็ต');
+                    };
+
+                    socket.onmessage = (event) => {
+                        try {
+                            const payload = JSON.parse(event.data);
+                            if (payload && payload.matches) {
+                                updateLiveStatus('อัปเดตสดจากเซิร์ฟเวอร์');
+                                applyRealtimeUpdate(payload);
+                            }
+                        } catch (error) {
+                            updateLiveStatus('รับข้อมูลสด');
+                        }
+                    };
+
+                    socket.onerror = () => {
+                        updateLiveStatus('โหมดจำลอง realtime');
+                    };
+
+                    socket.onclose = () => {
+                        updateLiveStatus('เชื่อมต่อหลุด • ใช้โหมดจำลอง');
+                    };
+                } catch (error) {
+                    updateLiveStatus('โหมดจำลอง realtime');
+                }
+            }
+
+            // populate the sample profile numbers (user asked to "create numbers that look good")
+            function populateSampleProfits() {
+                // These are example values; replace with real aggregated data in production
+                const total = 128450.75;
+                const monthly = 9875.06;
+                const elTotal = document.getElementById('totalProfitToDate');
+                const elMonthly = document.getElementById('totalProfitPerMonth');
+                if (elTotal) elTotal.textContent = `฿${formatMoney(total)}`;
+                if (elMonthly) elMonthly.textContent = `฿${formatMoney(monthly)}`;
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                state.matches = buildMatches();
+                renderMatches();
+                selectMatch(state.matches[0].id);
+                setCalcMode('investment');
+                setCalcManual(false);
+                calculateStakes();
+                startDemoRealtimeFeed();
+                connectRealtimeFeed();
+                // start polling bookmakers for live odds/scores (best-effort)
+                startPollingBookies(8000);
+                populateSampleProfits();
+            });
+        </script>
+    </body>
+    </html>
